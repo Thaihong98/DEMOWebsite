@@ -647,6 +647,16 @@
         // wait a while for the widget to load
         setTimeout(() => {
             console.log(LiveChatWidget.get("customer_data"));
+            window.__lc.asyncInit = function() {
+            // Set your custom variables
+            LiveChatWidget.call('set_session_variables', {
+                session_id: '12345',
+                page_url: window.location.href,
+                user_type: 'premium',
+                source: 'website',
+                custom_param: 'testing-pass-custom-content'
+            });
+        };
         }, 5000); 
     </script>
 
