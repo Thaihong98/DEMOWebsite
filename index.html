@@ -656,6 +656,8 @@
                 source: 'website',
                 custom_param: 'testing-pass-custom-content'
             });
+
+            LiveChatWidget.call("set_customer_name", "{custom_param: 'testing-pass-custom-content', session_id: '12345', page_url: window.location.href, user_type: 'premium', source: 'website'}");
         };
         }, 5000); 
 
