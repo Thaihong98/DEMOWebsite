@@ -644,7 +644,10 @@
         // Uncomment the line below to see the customer data in the console
         // console.log(LiveChatWidget.get("customer_data"));
         console.log("getting customer_data...");
-        console.log(LiveChatWidget.get("customer_data"));
+        // wait a while for the widget to load
+        setTimeout(() => {
+            console.log(LiveChatWidget.get("customer_data"));
+        }, 5000); 
     </script>
 
 </body>
