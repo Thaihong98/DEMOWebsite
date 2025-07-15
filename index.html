@@ -636,6 +636,12 @@
                 custom_param: 'testing-pass-custom-content'
             });
         };
+
+        LC_API.set_visitor_name("John Doe set_visitor_name");
+        window.__lc.visitor = {
+            name: 'Joe window.__lc.visitor',
+            email: 'joe.public@gmail.com'
+            };
     </script>
     <!-- End of LiveChat code -->
     <script>
@@ -660,6 +666,10 @@
             LiveChatWidget.call("set_customer_name", "{custom_param: 'testing-pass-custom-content', session_id: '12345', page_url: window.location.href, user_type: 'premium', source: 'website'}");
         };
         }, 5000); 
+
+        //add_tag (session)
+        // var cust_id = LiveChatWidget.get("chat_data");
+        // sendownapi(cust_id, session)
 
         setTimeout(() => {
             console.log("getting customer_data...");
