@@ -338,7 +338,7 @@
 <body>
     <div class="container">
         <div class="profile-header">
-            
+
 
             <div class="profile-info">
                 <h1 class="profile-name" id="profileName">John Developer</h1>
@@ -635,28 +635,12 @@
         window.__lc.group = 161;
 
         window.__lc.asyncInit = function () {
-        //     console.log('LiveChatWidget initialized');
-        //     // Wait for the widget to be ready before trying to change it
-        //     LiveChatWidget.on('ready', function () {
-        //         try {
-        //             const memInfoString = localStorage.getItem('memInfo');
-
-        //             // Check if the user data exists in localStorage
-        //             if (memInfoString) {
-        //                 const memInfo = JSON.parse(memInfoString);
-        //                 const loginId = memInfo.loginId; // Correctly get the loginId
-
-        //                 // Set the customer name only if a loginId was found
-        //                 if (loginId) {
-        //                     const visitorName = 'Visitor_' + loginId;
-        //                     LiveChatWidget.call('set_customer_name', visitorName);
-        //                     console.log('LiveChat name set to:', visitorName);
-        //                 }
-        //             }
-        //         } catch (error) {
-        //             console.error("Failed to set LiveChat visitor name:", error);
-        //         }
-        //     });
+            // This ensures LiveChatWidget is available after it's loaded
+            LiveChatWidget.on('ready', function () {
+                LiveChatWidget.call('get', 'visitorData', function (data) {
+                    console.log('Visitor name:', data.name);
+                });
+            });
         };
         ; (function (n, t, c) { function i(n) { return e._h ? e._h.apply(null, n) : e._q.push(n) } var e = { _q: [], _h: null, _v: "4.0", on: function () { i(["on", c.call(arguments)]) }, once: function () { i(["once", c.call(arguments)]) }, off: function () { i(["off", c.call(arguments)]) }, get: function () { if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load."); return i(["get", c.call(arguments)]) }, call: function () { i(["call", c.call(arguments)]) }, init: function () { var n = t.createElement("script"); n.async = !0, n.type = "text/javascript", n.src = "https://cdn.livechatinc.com/tracking.js", t.head.appendChild(n) } }; !n.__lc.asyncInit && e.init(), n.LiveChatWidget = n.LiveChatWidget || e }(window, document, [].slice))
     </script>
