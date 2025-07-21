@@ -637,8 +637,9 @@
                 const memInfo = JSON.parse(memInfoString);
                 const loginId = memInfo.loginId;
                 if (loginId) {
+                    const newName = customerData.name + " " + loginId;
                     window.__lc.visitor = {
-                        name: customerData.name + '_' + loginId
+                        name: newName
                     };
                 }
             }
