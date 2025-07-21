@@ -628,15 +628,32 @@
     </script>
     <!-- Start of LiveChat (www.livechat.com) code -->
     <script>
-        localStorage.setItem('SessionId', '027b4eb8-566d-43f6-b340-33922989d589');
+        localStorage.setItem('memInfo', '{"loginId":"thaihong","currId":"MYR","contactCountry":"60","contactNumber":"123****7899","bankId":null,"memName":"*******ong","bankAcctNo":null,"bankAcctName":null,"fastMemName":"","fastBankAcctNo":null,"fastBankAcctName":null,"referralCode":"7E0EEB15","dob":"07-21-2025","memEmail":"","regMemType":2,"gender":"M","genderModifyDate":null,"dateOfBirthModifyDate":null,"acctModifyDate":null,"network":"","walletAddress":null,"walletAddressModifyDate":null,"vipIconInfo":null,"phoneWithdrawDate":null,"financialInfoModifyDate":null,"provinceName":"","city":"","bankBranch":"","emailVerify":false,"phoneVerify":false,"streamingAccountSetting":null,"isReferralAccount":true,"nationalityName":null,"countryName":null,"sourceIncome":null,"occupation":null,"isCrypto":false,"isLineLoginActive":false,"isLineBinded":false,"memGroup":"-"}');
         window.__lc = window.__lc || {};
         window.__lc.license = 13374150;
         window.__lc.integration_name = "manual_channels";
         window.__lc.product_name = "livechat";
         window.__lc.group = 161;
 
-        window.__lc.visitor = {
-            name: localStorage.getItem('SessionId') || 'Guest'
+        window.__lc.asyncInit = function () {
+        LiveChatWidget.on('ready', function () {
+            const memInfoString = localStorage.getItem('memInfo');
+            
+            // Only proceed if memInfo exists
+            if (memInfoString) {
+                const memInfo = JSON.parse(memInfoString);
+                const loginId = memInfo.loginId;
+
+                // Ensure loginId is valid before setting the name
+                if (loginId) {
+                    LiveChatWidget.call('get', 'visitorData', function (data) {
+                    window.__lc.visitor = {
+                        name: data.name + '_' + loginId || 'Visitor'
+                    };
+                });
+                }
+            }
+        });
         };
         ; (function (n, t, c) { function i(n) { return e._h ? e._h.apply(null, n) : e._q.push(n) } var e = { _q: [], _h: null, _v: "2.0", on: function () { i(["on", c.call(arguments)]) }, once: function () { i(["once", c.call(arguments)]) }, off: function () { i(["off", c.call(arguments)]) }, get: function () { if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load."); return i(["get", c.call(arguments)]) }, call: function () { i(["call", c.call(arguments)]) }, init: function () { var n = t.createElement("script"); n.async = !0, n.type = "text/javascript", n.src = "https://cdn.livechatinc.com/tracking.js", t.head.appendChild(n) } }; !n.__lc.asyncInit && e.init(), n.LiveChatWidget = n.LiveChatWidget || e }(window, document, [].slice))
 
