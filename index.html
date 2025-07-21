@@ -641,9 +641,11 @@
             try {
                 const memInfo = JSON.parse(memInfoString);
                 if (memInfo.loginId) {
-                    window.__lc.visitor = {
-                        name: memInfo.loginId
-                    };
+                    LiveChatWidget.call('get', 'visitorData', function (data) {
+                        window.__lc.visitor = {
+                            name: data.name + '_' + loginId || 'Visitor'
+                        };
+                    });
                 }
             } catch (e) {
                 console.error('Error parsing memInfo:', e);
