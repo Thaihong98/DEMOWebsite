@@ -637,13 +637,20 @@
 
         // Set visitor name early
         const memInfoString = localStorage.getItem('memInfo');
-        username = LiveChatWidget.get("customer_data");
-        if (memInfoString && username) {
+        
+        if (memInfoString) {
             const memInfo = JSON.parse(memInfoString);
             if (memInfo.loginId) {
-                window.__lc.visitor = {
-                    name: username + '_' + loginId
+                window.__lc.asyncInit = function () {
+            LiveChatWidget.on('ready', function () {
+                LiveChatWidget.call('get', 'visitorData', function (data) {
+                    console.log('Visitor name:', data.name);
+                    window.__lc.visitor = {
+                    name: data.name + '_' + loginId
                 };
+                });
+            });
+        };
             }
 
         }
