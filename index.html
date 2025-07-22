@@ -642,9 +642,7 @@
                 const loginId = memInfo.loginId;
                 if (loginId) {
                     const newName = customerData.name + "_" + loginId;
-                    LiveChatWidget.call('update_visitor_data', {
-                        name: newName
-                    });
+                    LiveChatWidget.call('set_customer_name', newName);
                 }
             }
         });
