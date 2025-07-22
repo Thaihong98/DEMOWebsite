@@ -635,7 +635,7 @@
             const memInfoString = localStorage.getItem('memInfo');
             if (memInfoString) {
                 const loginId = JSON.parse(memInfoString).loginId;
-                const username = LiveChatWidget.get("customer_data").name;
+                const username = String(LiveChatWidget.get("customer_data").name);
                 if (loginId && !username.includes("_" + loginId)) {
                     const newName = username + "_" + loginId;
                     LiveChatWidget.call('set_customer_name', newName);
