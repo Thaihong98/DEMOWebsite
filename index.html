@@ -633,6 +633,7 @@
       window.__lc.license = 13374150;
       window.__lc.integration_name = "manual_channels";
       window.__lc.product_name = "livechat";
+      //   window.__lc.asyncInit = true;
       window.__lc.group = 161;
       window.__lc.custom_variables = [
         { name: "userId", value: "1234599" },
@@ -695,7 +696,7 @@
     </script>
     <script>
       LiveChatWidget.on("ready", function () {
-        LiveChatWidget.call("set_session_variables", {
+        LiveChatWidget.call("set_custom_variables", {
           user_name: "John Doe",
           user_email: "john.doe@example.com",
           account_id: "ABCD1234",
