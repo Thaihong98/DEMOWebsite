@@ -682,11 +682,14 @@
 
       // Wait for LiveChatWidget initialization
       LiveChatWidget.on("ready", () => {
-        LiveChatWidget.call("set_session_variables", {
-          username: "john.doe",
-          cart_value: "450",
-          "order date": "05/21/2019",
-        });
+        const memInfoString = localStorage.getItem("memInfo");
+        if (memInfoString) {
+          const loginId = JSON.parse(memInfoString).loginId;
+          LiveChatWidget.call("set_session_variables", {
+            memberId: loginId,
+            seesionId: "1qaz2wsx",
+          });
+        }
       });
 
       // window.LC_API.set_custom_variables([
