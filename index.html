@@ -681,20 +681,20 @@
       })(window, document, [].slice);
 
       // Wait for LiveChatWidget initialization
-      LiveChatWidget.on("ready", () => {
-        LiveChatWidget.call("set_session_variables", {
-          username: "john.doe",
-          cart_value: "450",
-          "order date": "05/21/2019",
-        });
-      });
+    //   LiveChatWidget.on("ready", () => {
+    //     LiveChatWidget.call("set_session_variables", {
+    //       username: "john.doe",
+    //       cart_value: "450",
+    //       "order date": "05/21/2019",
+    //     });
+    //   });
 
       // window.LC_API.set_custom_variables([
       //     { name: 'planType', value: 'Gold' },
       //     { name: 'accountStatus', value: 'active' }
       // ]);
     </script>
-    <script>
+    <!-- <script>
       LiveChatWidget.on("ready", function () {
         LiveChatWidget.call("set_custom_variables", {
           user_name: "John Doe",
@@ -703,6 +703,6 @@
           cart_value: "$150",
         });
       });
-    </script>
+    </script> -->
   </body>
 </html>
