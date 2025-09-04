@@ -400,7 +400,8 @@
       </div>
     </div>
   </div>
-  <a href="./livechat.html">Chat with us</a>
+  <a href="./livechat.html" id="chatLink">Chat with us</a>
+  <a href="./livechatV2.html">Chat with us</a>
 
   <!-- Edit Profile Modal -->
   <div class="edit-modal" id="editModal">
@@ -693,7 +694,7 @@
       function decodeJWTPayload(token) {
         const base64Url = token.split(".")[1];
         const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
         return new TextDecoder().decode(bytes);
       }
 
@@ -705,6 +706,46 @@
     //     { name: 'planType', value: 'Gold' },
     //     { name: 'accountStatus', value: 'active' }
     // ]);
+
+    document
+      .getElementById("chatLink")
+      .addEventListener("click", async function (e) {
+        e.preventDefault(); // stop default navigation for a moment
+
+        try {
+          // Call LiveChat API (you need customer SDK or REST API auth here)
+          const response = await fetch(
+            "https://api.livechatinc.com/v3.6/customer/action/set_customer_session_fields",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                // 👇 This requires a valid LiveChat customer JWT token
+                Authorization: "Bearer <CUSTOMER_JWT_TOKEN>",
+              },
+              body: JSON.stringify({
+                fields: {
+                  userId: "12345",
+                  plan: "Pro",
+                  source: "SupportLink",
+                },
+              }),
+            }
+          );
+
+          if (!response.ok) {
+            console.error(
+              "Failed to set session fields",
+              await response.text()
+            );
+          }
+        } catch (err) {
+          console.error("API error:", err);
+        }
+
+        // Now redirect to livechat page
+        window.location.href = "./livechat.html";
+      });
   </script>
   <!-- <script>
       LiveChatWidget.on("ready", function () {
