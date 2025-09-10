@@ -23,29 +23,13 @@
     }
   </style>
 </head>
-
 <body>
-  <iframe src="https://direct.lc.chat/13374150/161"></iframe>
+  <iframe src="https://www.livechat.com/chat-with/13374150/161"></iframe>
   <script>
-    LiveChatWidget.on("ready", () => {
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(";").shift();
-      }
-      function decodeJWTPayload(token) {
-        const base64Url = token.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
-      }
-      console.log("qqqqq");
-
-      LiveChatWidget.call("set_session_variables", {
-        token: decodeJWTPayload(getCookie("token")),
-      });
+    LC_API.set_session_variables({
+      merchantId: "12345",
+      memberId: "67890"
     });
   </script>
 </body>
-
 </html>

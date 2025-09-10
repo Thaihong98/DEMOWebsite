@@ -1,544 +1,543 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>GitHub Profile</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>GitHub Profile</title>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #0d1117;
+        color: #e6edf3;
+        line-height: 1.6;
+      }
 
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
-        sans-serif;
-      background: #0d1117;
-      color: #e6edf3;
-      line-height: 1.6;
-    }
+      .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+      }
 
-    .container {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-
-    .profile-header {
-      display: flex;
-      gap: 30px;
-      margin-bottom: 30px;
-      flex-wrap: wrap;
-    }
-
-    .profile-avatar {
-      width: 280px;
-      height: 280px;
-      border-radius: 50%;
-      border: 3px solid #21262d;
-      object-fit: cover;
-      cursor: pointer;
-      transition: transform 0.3s ease;
-    }
-
-    .profile-avatar:hover {
-      transform: scale(1.05);
-    }
-
-    .profile-info {
-      flex: 1;
-      min-width: 300px;
-    }
-
-    .profile-name {
-      font-size: 2.5rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      color: #f0f6fc;
-    }
-
-    .profile-username {
-      font-size: 1.2rem;
-      color: #7d8590;
-      margin-bottom: 15px;
-    }
-
-    .profile-bio {
-      font-size: 1.1rem;
-      margin-bottom: 20px;
-      color: #e6edf3;
-    }
-
-    .profile-stats {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #7d8590;
-    }
-
-    .stat-number {
-      font-weight: 600;
-      color: #f0f6fc;
-    }
-
-    .profile-links {
-      display: flex;
-      gap: 15px;
-      margin-bottom: 20px;
-      flex-wrap: wrap;
-    }
-
-    .profile-link {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      color: #58a6ff;
-      text-decoration: none;
-      font-size: 0.9rem;
-      transition: color 0.3s ease;
-    }
-
-    .profile-link:hover {
-      color: #79c0ff;
-    }
-
-    .repositories {
-      margin-top: 30px;
-    }
-
-    .section-title {
-      font-size: 1.8rem;
-      font-weight: 600;
-      margin-bottom: 20px;
-      color: #f0f6fc;
-    }
-
-    .repo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-      gap: 20px;
-    }
-
-    .repo-card {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      padding: 20px;
-      transition: border-color 0.3s ease, transform 0.3s ease;
-      cursor: pointer;
-    }
-
-    .repo-card:hover {
-      border-color: #58a6ff;
-      transform: translateY(-2px);
-    }
-
-    .repo-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 10px;
-    }
-
-    .repo-name {
-      font-size: 1.1rem;
-      font-weight: 600;
-      color: #58a6ff;
-      text-decoration: none;
-    }
-
-    .repo-visibility {
-      font-size: 0.75rem;
-      color: #7d8590;
-      border: 1px solid #30363d;
-      padding: 2px 6px;
-      border-radius: 12px;
-    }
-
-    .repo-description {
-      color: #7d8590;
-      margin-bottom: 15px;
-      font-size: 0.9rem;
-    }
-
-    .repo-stats {
-      display: flex;
-      gap: 15px;
-      font-size: 0.8rem;
-      color: #7d8590;
-    }
-
-    .repo-stat {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-
-    .language-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      display: inline-block;
-    }
-
-    .edit-btn {
-      background: #238636;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.3s ease;
-    }
-
-    .edit-btn:hover {
-      background: #2ea043;
-    }
-
-    .github-icon {
-      width: 16px;
-      height: 16px;
-      fill: currentColor;
-    }
-
-    .edit-modal {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      z-index: 1000;
-    }
-
-    .modal-content {
-      background: #161b22;
-      border: 1px solid #30363d;
-      border-radius: 8px;
-      width: 90%;
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 30px;
-    }
-
-    .modal-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-
-    .modal-title {
-      font-size: 1.5rem;
-      color: #f0f6fc;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      color: #7d8590;
-      font-size: 1.5rem;
-      cursor: pointer;
-    }
-
-    .form-group {
-      margin-bottom: 15px;
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 5px;
-      color: #e6edf3;
-      font-weight: 500;
-    }
-
-    .form-group input,
-    .form-group textarea {
-      width: 100%;
-      padding: 10px;
-      background: #0d1117;
-      border: 1px solid #30363d;
-      border-radius: 6px;
-      color: #e6edf3;
-      font-size: 0.9rem;
-    }
-
-    .form-group textarea {
-      height: 100px;
-      resize: vertical;
-    }
-
-    .form-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-    }
-
-    .btn {
-      padding: 8px 16px;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-size: 0.9rem;
-      transition: background 0.3s ease;
-    }
-
-    .btn-primary {
-      background: #238636;
-      color: white;
-    }
-
-    .btn-primary:hover {
-      background: #2ea043;
-    }
-
-    .btn-secondary {
-      background: #21262d;
-      color: #e6edf3;
-      border: 1px solid #30363d;
-    }
-
-    .btn-secondary:hover {
-      background: #30363d;
-    }
-
-    @media (max-width: 768px) {
       .profile-header {
-        flex-direction: column;
-        align-items: center;
-        text-align: center;
+        display: flex;
+        gap: 30px;
+        margin-bottom: 30px;
+        flex-wrap: wrap;
       }
 
       .profile-avatar {
-        width: 200px;
-        height: 200px;
+        width: 280px;
+        height: 280px;
+        border-radius: 50%;
+        border: 3px solid #21262d;
+        object-fit: cover;
+        cursor: pointer;
+        transition: transform 0.3s ease;
+      }
+
+      .profile-avatar:hover {
+        transform: scale(1.05);
+      }
+
+      .profile-info {
+        flex: 1;
+        min-width: 300px;
       }
 
       .profile-name {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+        color: #f0f6fc;
+      }
+
+      .profile-username {
+        font-size: 1.2rem;
+        color: #7d8590;
+        margin-bottom: 15px;
+      }
+
+      .profile-bio {
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+        color: #e6edf3;
+      }
+
+      .profile-stats {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .stat-item {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #7d8590;
+      }
+
+      .stat-number {
+        font-weight: 600;
+        color: #f0f6fc;
+      }
+
+      .profile-links {
+        display: flex;
+        gap: 15px;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+      }
+
+      .profile-link {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        color: #58a6ff;
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: color 0.3s ease;
+      }
+
+      .profile-link:hover {
+        color: #79c0ff;
+      }
+
+      .repositories {
+        margin-top: 30px;
+      }
+
+      .section-title {
+        font-size: 1.8rem;
+        font-weight: 600;
+        margin-bottom: 20px;
+        color: #f0f6fc;
       }
 
       .repo-grid {
-        grid-template-columns: 1fr;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 20px;
       }
-    }
-  </style>
-</head>
 
-<body>
-  <div class="container">
-    <div class="profile-header">
-      <div class="profile-info">
-        <h1 class="profile-name" id="profileName">John Developer</h1>
-        <p class="profile-username" id="profileUsername">@johndeveloper</p>
-        <p class="profile-bio" id="profileBio">
-          Full-stack developer passionate about open source and creating
-          amazing web experiences. Always learning new technologies!
-        </p>
+      .repo-card {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        padding: 20px;
+        transition: border-color 0.3s ease, transform 0.3s ease;
+        cursor: pointer;
+      }
 
-        <div class="profile-stats">
-          <div class="stat-item">
-            <span class="stat-number" id="followersCount">156</span>
-            <span>followers</span>
+      .repo-card:hover {
+        border-color: #58a6ff;
+        transform: translateY(-2px);
+      }
+
+      .repo-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 10px;
+      }
+
+      .repo-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #58a6ff;
+        text-decoration: none;
+      }
+
+      .repo-visibility {
+        font-size: 0.75rem;
+        color: #7d8590;
+        border: 1px solid #30363d;
+        padding: 2px 6px;
+        border-radius: 12px;
+      }
+
+      .repo-description {
+        color: #7d8590;
+        margin-bottom: 15px;
+        font-size: 0.9rem;
+      }
+
+      .repo-stats {
+        display: flex;
+        gap: 15px;
+        font-size: 0.8rem;
+        color: #7d8590;
+      }
+
+      .repo-stat {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+      }
+
+      .language-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .edit-btn {
+        background: #238636;
+        color: white;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.3s ease;
+      }
+
+      .edit-btn:hover {
+        background: #2ea043;
+      }
+
+      .github-icon {
+        width: 16px;
+        height: 16px;
+        fill: currentColor;
+      }
+
+      .edit-modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        z-index: 1000;
+      }
+
+      .modal-content {
+        background: #161b22;
+        border: 1px solid #30363d;
+        border-radius: 8px;
+        width: 90%;
+        max-width: 600px;
+        margin: 50px auto;
+        padding: 30px;
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+      }
+
+      .modal-title {
+        font-size: 1.5rem;
+        color: #f0f6fc;
+      }
+
+      .close-btn {
+        background: none;
+        border: none;
+        color: #7d8590;
+        font-size: 1.5rem;
+        cursor: pointer;
+      }
+
+      .form-group {
+        margin-bottom: 15px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #e6edf3;
+        font-weight: 500;
+      }
+
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        background: #0d1117;
+        border: 1px solid #30363d;
+        border-radius: 6px;
+        color: #e6edf3;
+        font-size: 0.9rem;
+      }
+
+      .form-group textarea {
+        height: 100px;
+        resize: vertical;
+      }
+
+      .form-actions {
+        display: flex;
+        gap: 10px;
+        justify-content: flex-end;
+      }
+
+      .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.9rem;
+        transition: background 0.3s ease;
+      }
+
+      .btn-primary {
+        background: #238636;
+        color: white;
+      }
+
+      .btn-primary:hover {
+        background: #2ea043;
+      }
+
+      .btn-secondary {
+        background: #21262d;
+        color: #e6edf3;
+        border: 1px solid #30363d;
+      }
+
+      .btn-secondary:hover {
+        background: #30363d;
+      }
+
+      @media (max-width: 768px) {
+        .profile-header {
+          flex-direction: column;
+          align-items: center;
+          text-align: center;
+        }
+
+        .profile-avatar {
+          width: 200px;
+          height: 200px;
+        }
+
+        .profile-name {
+          font-size: 2rem;
+        }
+
+        .repo-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <div class="container">
+      <div class="profile-header">
+        <div class="profile-info">
+          <h1 class="profile-name" id="profileName">John Developer</h1>
+          <p class="profile-username" id="profileUsername">@johndeveloper</p>
+          <p class="profile-bio" id="profileBio">
+            Full-stack developer passionate about open source and creating
+            amazing web experiences. Always learning new technologies!
+          </p>
+
+          <div class="profile-stats">
+            <div class="stat-item">
+              <span class="stat-number" id="followersCount">156</span>
+              <span>followers</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="followingCount">89</span>
+              <span>following</span>
+            </div>
+            <div class="stat-item">
+              <span class="stat-number" id="reposCount">42</span>
+              <span>repositories</span>
+            </div>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" id="followingCount">89</span>
-            <span>following</span>
+
+          <div class="profile-links">
+            <a href="#" class="profile-link" id="locationLink">
+              <svg class="github-icon" viewBox="0 0 16 16">
+                <path
+                  d="m12.596 11.596-3.535 3.536a1.5 1.5 0 0 1-2.122 0l-3.535-3.536a6.5 6.5 0 1 1 9.192-9.193 6.5 6.5 0 0 1 0 9.193Zm-1.06-8.132v-.001a5 5 0 1 0-7.072 7.072L8 14.07l3.536-3.534a5 5 0 0 0 0-7.072ZM8 9a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 9Z"
+                ></path>
+              </svg>
+              San Francisco, CA
+            </a>
+            <a href="#" class="profile-link" id="websiteLink">
+              <svg class="github-icon" viewBox="0 0 16 16">
+                <path
+                  d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z"
+                ></path>
+              </svg>
+              johndeveloper.dev
+            </a>
+            <a href="#" class="profile-link" id="emailLink">
+              <svg class="github-icon" viewBox="0 0 16 16">
+                <path
+                  d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2ZM1.5 12.251c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V5.809L8.38 9.397a.75.75 0 0 1-.76 0L1.5 5.809v6.442Zm13-8.181v-.32a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25v.32L8 7.88l6.5-3.81Z"
+                ></path>
+              </svg>
+              john@example.com
+            </a>
           </div>
-          <div class="stat-item">
-            <span class="stat-number" id="reposCount">42</span>
-            <span>repositories</span>
-          </div>
+
+          <button class="edit-btn" id="editProfileBtn">Edit Profile</button>
         </div>
+      </div>
 
-        <div class="profile-links">
-          <a href="#" class="profile-link" id="locationLink">
-            <svg class="github-icon" viewBox="0 0 16 16">
-              <path
-                d="m12.596 11.596-3.535 3.536a1.5 1.5 0 0 1-2.122 0l-3.535-3.536a6.5 6.5 0 1 1 9.192-9.193 6.5 6.5 0 0 1 0 9.193Zm-1.06-8.132v-.001a5 5 0 1 0-7.072 7.072L8 14.07l3.536-3.534a5 5 0 0 0 0-7.072ZM8 9a2 2 0 1 1-.001-3.999A2 2 0 0 1 8 9Z">
-              </path>
-            </svg>
-            San Francisco, CA
-          </a>
-          <a href="#" class="profile-link" id="websiteLink">
-            <svg class="github-icon" viewBox="0 0 16 16">
-              <path
-                d="M7.775 3.275a.75.75 0 001.06 1.06l1.25-1.25a2 2 0 112.83 2.83l-2.5 2.5a2 2 0 01-2.83 0 .75.75 0 00-1.06 1.06 3.5 3.5 0 004.95 0l2.5-2.5a3.5 3.5 0 00-4.95-4.95l-1.25 1.25zm-4.69 9.64a2 2 0 010-2.83l2.5-2.5a2 2 0 012.83 0 .75.75 0 001.06-1.06 3.5 3.5 0 00-4.95 0l-2.5 2.5a3.5 3.5 0 004.95 4.95l1.25-1.25a.75.75 0 00-1.06-1.06l-1.25 1.25a2 2 0 01-2.83 0z">
-              </path>
-            </svg>
-            johndeveloper.dev
-          </a>
-          <a href="#" class="profile-link" id="emailLink">
-            <svg class="github-icon" viewBox="0 0 16 16">
-              <path
-                d="M1.75 2h12.5c.966 0 1.75.784 1.75 1.75v8.5A1.75 1.75 0 0 1 14.25 14H1.75A1.75 1.75 0 0 1 0 12.25v-8.5C0 2.784.784 2 1.75 2ZM1.5 12.251c0 .138.112.25.25.25h12.5a.25.25 0 0 0 .25-.25V5.809L8.38 9.397a.75.75 0 0 1-.76 0L1.5 5.809v6.442Zm13-8.181v-.32a.25.25 0 0 0-.25-.25H1.75a.25.25 0 0 0-.25.25v.32L8 7.88l6.5-3.81Z">
-              </path>
-            </svg>
-            john@example.com
-          </a>
+      <div class="repositories">
+        <h2 class="section-title">Popular Repositories</h2>
+        <div class="repo-grid" id="repoGrid">
+          <!-- Repositories will be populated by JavaScript -->
         </div>
+      </div>
+    </div>
+    <a href="./livechat.html" id="chatLink">Chat with us</a>
+    <a href="./livechatV2.html">Chat with us</a>
 
-        <button class="edit-btn" id="editProfileBtn">Edit Profile</button>
+    <!-- Edit Profile Modal -->
+    <div class="edit-modal" id="editModal">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3 class="modal-title">Edit Profile</h3>
+          <button class="close-btn" id="closeModal">&times;</button>
+        </div>
+        <form id="editForm">
+          <div class="form-group">
+            <label for="editName">Name</label>
+            <input type="text" id="editName" name="name" />
+          </div>
+          <div class="form-group">
+            <label for="editUsername">Username</label>
+            <input type="text" id="editUsername" name="username" />
+          </div>
+          <div class="form-group">
+            <label for="editBio">Bio</label>
+            <textarea id="editBio" name="bio"></textarea>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn btn-secondary" id="cancelEdit">
+              Cancel
+            </button>
+            <button type="submit" class="btn btn-primary">Save Changes</button>
+          </div>
+        </form>
       </div>
     </div>
 
-    <div class="repositories">
-      <h2 class="section-title">Popular Repositories</h2>
-      <div class="repo-grid" id="repoGrid">
-        <!-- Repositories will be populated by JavaScript -->
-      </div>
-    </div>
-  </div>
-  <a href="./livechat.html" id="chatLink">Chat with us</a>
-  <a href="./livechatV2.html">Chat with us</a>
+    <script>
+      // Sample repository data
+      const repositories = [
+        {
+          name: "awesome-portfolio",
+          description:
+            "A beautiful responsive portfolio website built with HTML, CSS, and JavaScript",
+          language: "JavaScript",
+          languageColor: "#f1e05a",
+          stars: 245,
+          forks: 67,
+          visibility: "Public",
+        },
+        {
+          name: "react-todo-app",
+          description:
+            "Modern todo application with React hooks and local storage",
+          language: "TypeScript",
+          languageColor: "#3178c6",
+          stars: 128,
+          forks: 34,
+          visibility: "Public",
+        },
+        {
+          name: "python-data-viz",
+          description:
+            "Data visualization toolkit using matplotlib and seaborn",
+          language: "Python",
+          languageColor: "#3572A5",
+          stars: 89,
+          forks: 23,
+          visibility: "Public",
+        },
+        {
+          name: "node-api-server",
+          description: "RESTful API server with Express.js and MongoDB",
+          language: "JavaScript",
+          languageColor: "#f1e05a",
+          stars: 156,
+          forks: 45,
+          visibility: "Public",
+        },
+        {
+          name: "css-animations",
+          description: "Collection of smooth CSS animations and transitions",
+          language: "CSS",
+          languageColor: "#563d7c",
+          stars: 312,
+          forks: 89,
+          visibility: "Public",
+        },
+        {
+          name: "machine-learning-basics",
+          description:
+            "Introduction to machine learning with practical examples",
+          language: "Python",
+          languageColor: "#3572A5",
+          stars: 67,
+          forks: 12,
+          visibility: "Public",
+        },
+      ];
 
-  <!-- Edit Profile Modal -->
-  <div class="edit-modal" id="editModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="modal-title">Edit Profile</h3>
-        <button class="close-btn" id="closeModal">&times;</button>
-      </div>
-      <form id="editForm">
-        <div class="form-group">
-          <label for="editName">Name</label>
-          <input type="text" id="editName" name="name" />
-        </div>
-        <div class="form-group">
-          <label for="editUsername">Username</label>
-          <input type="text" id="editUsername" name="username" />
-        </div>
-        <div class="form-group">
-          <label for="editBio">Bio</label>
-          <textarea id="editBio" name="bio"></textarea>
-        </div>
-        <div class="form-actions">
-          <button type="button" class="btn btn-secondary" id="cancelEdit">
-            Cancel
-          </button>
-          <button type="submit" class="btn btn-primary">Save Changes</button>
-        </div>
-      </form>
-    </div>
-  </div>
+      // Profile data
+      let profileData = {
+        name: "John Developer",
+        username: "@johndeveloper",
+        bio: "Full-stack developer passionate about open source and creating amazing web experiences. Always learning new technologies!",
+        followers: 156,
+        following: 89,
+        repos: 42,
+      };
 
-  <script>
-    // Sample repository data
-    const repositories = [
-      {
-        name: "awesome-portfolio",
-        description:
-          "A beautiful responsive portfolio website built with HTML, CSS, and JavaScript",
-        language: "JavaScript",
-        languageColor: "#f1e05a",
-        stars: 245,
-        forks: 67,
-        visibility: "Public",
-      },
-      {
-        name: "react-todo-app",
-        description:
-          "Modern todo application with React hooks and local storage",
-        language: "TypeScript",
-        languageColor: "#3178c6",
-        stars: 128,
-        forks: 34,
-        visibility: "Public",
-      },
-      {
-        name: "python-data-viz",
-        description:
-          "Data visualization toolkit using matplotlib and seaborn",
-        language: "Python",
-        languageColor: "#3572A5",
-        stars: 89,
-        forks: 23,
-        visibility: "Public",
-      },
-      {
-        name: "node-api-server",
-        description: "RESTful API server with Express.js and MongoDB",
-        language: "JavaScript",
-        languageColor: "#f1e05a",
-        stars: 156,
-        forks: 45,
-        visibility: "Public",
-      },
-      {
-        name: "css-animations",
-        description: "Collection of smooth CSS animations and transitions",
-        language: "CSS",
-        languageColor: "#563d7c",
-        stars: 312,
-        forks: 89,
-        visibility: "Public",
-      },
-      {
-        name: "machine-learning-basics",
-        description:
-          "Introduction to machine learning with practical examples",
-        language: "Python",
-        languageColor: "#3572A5",
-        stars: 67,
-        forks: 12,
-        visibility: "Public",
-      },
-    ];
+      // DOM elements
+      const profileName = document.getElementById("profileName");
+      const profileUsername = document.getElementById("profileUsername");
+      const profileBio = document.getElementById("profileBio");
+      const followersCount = document.getElementById("followersCount");
+      const followingCount = document.getElementById("followingCount");
+      const reposCount = document.getElementById("reposCount");
+      const repoGrid = document.getElementById("repoGrid");
+      const editProfileBtn = document.getElementById("editProfileBtn");
+      const editModal = document.getElementById("editModal");
+      const closeModal = document.getElementById("closeModal");
+      const cancelEdit = document.getElementById("cancelEdit");
+      const editForm = document.getElementById("editForm");
+      const editName = document.getElementById("editName");
+      const editUsername = document.getElementById("editUsername");
+      const editBio = document.getElementById("editBio");
+      const profileAvatar = document.getElementById("profileAvatar");
 
-    // Profile data
-    let profileData = {
-      name: "John Developer",
-      username: "@johndeveloper",
-      bio: "Full-stack developer passionate about open source and creating amazing web experiences. Always learning new technologies!",
-      followers: 156,
-      following: 89,
-      repos: 42,
-    };
+      // Initialize the page
+      function init() {
+        renderRepositories();
+        updateProfileDisplay();
+        setupEventListeners();
+      }
 
-    // DOM elements
-    const profileName = document.getElementById("profileName");
-    const profileUsername = document.getElementById("profileUsername");
-    const profileBio = document.getElementById("profileBio");
-    const followersCount = document.getElementById("followersCount");
-    const followingCount = document.getElementById("followingCount");
-    const reposCount = document.getElementById("reposCount");
-    const repoGrid = document.getElementById("repoGrid");
-    const editProfileBtn = document.getElementById("editProfileBtn");
-    const editModal = document.getElementById("editModal");
-    const closeModal = document.getElementById("closeModal");
-    const cancelEdit = document.getElementById("cancelEdit");
-    const editForm = document.getElementById("editForm");
-    const editName = document.getElementById("editName");
-    const editUsername = document.getElementById("editUsername");
-    const editBio = document.getElementById("editBio");
-    const profileAvatar = document.getElementById("profileAvatar");
+      // Render repositories
+      function renderRepositories() {
+        repoGrid.innerHTML = "";
 
-    // Initialize the page
-    function init() {
-      renderRepositories();
-      updateProfileDisplay();
-      setupEventListeners();
-    }
-
-    // Render repositories
-    function renderRepositories() {
-      repoGrid.innerHTML = "";
-
-      repositories.forEach((repo) => {
-        const repoCard = document.createElement("div");
-        repoCard.className = "repo-card";
-        repoCard.innerHTML = `
+        repositories.forEach((repo) => {
+          const repoCard = document.createElement("div");
+          repoCard.className = "repo-card";
+          repoCard.innerHTML = `
                     <div class="repo-header">
                         <a href="#" class="repo-name">${repo.name}</a>
                         <span class="repo-visibility">${repo.visibility}</span>
@@ -563,200 +562,159 @@
                         </div>
                     </div>
                 `;
-        repoGrid.appendChild(repoCard);
-      });
-    }
-
-    // Update profile display
-    function updateProfileDisplay() {
-      profileName.textContent = profileData.name;
-      profileUsername.textContent = profileData.username;
-      profileBio.textContent = profileData.bio;
-      followersCount.textContent = profileData.followers;
-      followingCount.textContent = profileData.following;
-      reposCount.textContent = profileData.repos;
-    }
-
-    // Setup event listeners
-    function setupEventListeners() {
-      editProfileBtn.addEventListener("click", openEditModal);
-      closeModal.addEventListener("click", closeEditModal);
-      cancelEdit.addEventListener("click", closeEditModal);
-      editForm.addEventListener("submit", handleFormSubmit);
-
-      // Close modal when clicking outside
-      editModal.addEventListener("click", (e) => {
-        if (e.target === editModal) {
-          closeEditModal();
-        }
-      });
-    }
-
-    // Open edit modal
-    function openEditModal() {
-      editName.value = profileData.name;
-      editUsername.value = profileData.username.replace("@", "");
-      editBio.value = profileData.bio;
-      editModal.style.display = "block";
-    }
-
-    // Close edit modal
-    function closeEditModal() {
-      editModal.style.display = "none";
-    }
-
-    // Handle form submission
-    function handleFormSubmit(e) {
-      e.preventDefault();
-
-      profileData.name = editName.value.trim();
-      profileData.username = "@" + editUsername.value.trim();
-      profileData.bio = editBio.value.trim();
-
-      updateProfileDisplay();
-      closeEditModal();
-
-      // Show success animation
-      profileName.style.color = "#238636";
-      setTimeout(() => {
-        profileName.style.color = "#f0f6fc";
-      }, 1000);
-    }
-
-    // Initialize when page loads
-    init();
-  </script>
-  <!-- Start of LiveChat (www.livechat.com) code -->
-  <script>
-    localStorage.setItem(
-      "memInfo",
-      '{"loginId":"thaihong","currId":"MYR","contactCountry":"60","contactNumber":"123****7899","bankId":null,"memName":"*******ong","bankAcctNo":null,"bankAcctName":null,"fastMemName":"","fastBankAcctNo":null,"fastBankAcctName":null,"referralCode":"7E0EEB15","dob":"07-21-2025","memEmail":"","regMemType":2,"gender":"M","genderModifyDate":null,"dateOfBirthModifyDate":null,"acctModifyDate":null,"network":"","walletAddress":null,"walletAddressModifyDate":null,"vipIconInfo":null,"phoneWithdrawDate":null,"financialInfoModifyDate":null,"provinceName":"","city":"","bankBranch":"","emailVerify":false,"phoneVerify":false,"streamingAccountSetting":null,"isReferralAccount":true,"nationalityName":null,"countryName":null,"sourceIncome":null,"occupation":null,"isCrypto":false,"isLineLoginActive":false,"isLineBinded":false,"memGroup":"-"}'
-    );
-    window.__lc = window.__lc || {};
-    window.__lc.license = 13374150;
-    window.__lc.integration_name = "manual_channels";
-    window.__lc.product_name = "livechat";
-    //   window.__lc.asyncInit = true;
-    window.__lc.group = 161;
-    window.__lc.custom_variables = [
-      { name: "userId", value: "1234599" },
-      { name: "planType", value: "Gold99" },
-      { name: "accountStatus", value: "active99" },
-    ];
-
-    (function (n, t, c) {
-      function i(n) {
-        return e._h ? e._h.apply(null, n) : e._q.push(n);
-      }
-      var e = {
-        _q: [],
-        _h: null,
-        _v: "4.0",
-        on: function () {
-          i(["on", c.call(arguments)]);
-        },
-        once: function () {
-          i(["once", c.call(arguments)]);
-        },
-        off: function () {
-          i(["off", c.call(arguments)]);
-        },
-        get: function () {
-          if (!e._h)
-            throw new Error(
-              "[LiveChatWidget] You can't use getters before load."
-            );
-          return i(["get", c.call(arguments)]);
-        },
-        call: function () {
-          i(["call", c.call(arguments)]);
-        },
-        init: function () {
-          var n = t.createElement("script");
-          (n.async = !0),
-            (n.type = "text/javascript"),
-            (n.src = "https://cdn.livechatinc.com/tracking.js"),
-            t.head.appendChild(n);
-        },
-      };
-      !n.__lc.asyncInit && e.init(),
-        (n.LiveChatWidget = n.LiveChatWidget || e);
-    })(window, document, [].slice);
-
-    document.cookie = "token=qqqqqq";
-    // Wait for LiveChatWidget initialization
-    LiveChatWidget.on("ready", () => {
-      function getCookie(name) {
-        const value = `; ${document.cookie}`;
-        const parts = value.split(`; ${name}=`);
-        if (parts.length === 2) return parts.pop().split(";").shift();
-      }
-      function decodeJWTPayload(token) {
-        const base64Url = token.split(".")[1];
-        const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
-        const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
-        return new TextDecoder().decode(bytes);
+          repoGrid.appendChild(repoCard);
+        });
       }
 
-      LiveChatWidget.call("set_session_variables", {
-        token: decodeJWTPayload(getCookie("token")),
-      });
-    });
-    // window.LC_API.set_custom_variables([
-    //     { name: 'planType', value: 'Gold' },
-    //     { name: 'accountStatus', value: 'active' }
-    // ]);
+      // Update profile display
+      function updateProfileDisplay() {
+        profileName.textContent = profileData.name;
+        profileUsername.textContent = profileData.username;
+        profileBio.textContent = profileData.bio;
+        followersCount.textContent = profileData.followers;
+        followingCount.textContent = profileData.following;
+        reposCount.textContent = profileData.repos;
+      }
 
-    document
-      .getElementById("chatLink")
-      .addEventListener("click", async function (e) {
-        e.preventDefault(); // stop default navigation for a moment
+      // Setup event listeners
+      function setupEventListeners() {
+        editProfileBtn.addEventListener("click", openEditModal);
+        closeModal.addEventListener("click", closeEditModal);
+        cancelEdit.addEventListener("click", closeEditModal);
+        editForm.addEventListener("submit", handleFormSubmit);
 
-        try {
-          // Call LiveChat API (you need customer SDK or REST API auth here)
-          const response = await fetch(
-            "https://api.livechatinc.com/v3.6/customer/action/set_customer_session_fields",
-            {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-                // 👇 This requires a valid LiveChat customer JWT token
-                Authorization: "Bearer <CUSTOMER_JWT_TOKEN>",
-              },
-              body: JSON.stringify({
-                fields: {
-                  userId: "12345",
-                  plan: "Pro",
-                  source: "SupportLink",
-                },
-              }),
-            }
-          );
-
-          if (!response.ok) {
-            console.error(
-              "Failed to set session fields",
-              await response.text()
-            );
+        // Close modal when clicking outside
+        editModal.addEventListener("click", (e) => {
+          if (e.target === editModal) {
+            closeEditModal();
           }
-        } catch (err) {
-          console.error("API error:", err);
+        });
+      }
+
+      // Open edit modal
+      function openEditModal() {
+        editName.value = profileData.name;
+        editUsername.value = profileData.username.replace("@", "");
+        editBio.value = profileData.bio;
+        editModal.style.display = "block";
+      }
+
+      // Close edit modal
+      function closeEditModal() {
+        editModal.style.display = "none";
+      }
+
+      // Handle form submission
+      function handleFormSubmit(e) {
+        e.preventDefault();
+
+        profileData.name = editName.value.trim();
+        profileData.username = "@" + editUsername.value.trim();
+        profileData.bio = editBio.value.trim();
+
+        updateProfileDisplay();
+        closeEditModal();
+
+        // Show success animation
+        profileName.style.color = "#238636";
+        setTimeout(() => {
+          profileName.style.color = "#f0f6fc";
+        }, 1000);
+      }
+
+      // Initialize when page loads
+      init();
+    </script>
+    <!-- Start of LiveChat (www.livechat.com) code -->
+    <script>
+      localStorage.setItem(
+        "memInfo",
+        '{"loginId":"thaihong","currId":"MYR","contactCountry":"60","contactNumber":"123****7899","bankId":null,"memName":"*******ong","bankAcctNo":null,"bankAcctName":null,"fastMemName":"","fastBankAcctNo":null,"fastBankAcctName":null,"referralCode":"7E0EEB15","dob":"07-21-2025","memEmail":"","regMemType":2,"gender":"M","genderModifyDate":null,"dateOfBirthModifyDate":null,"acctModifyDate":null,"network":"","walletAddress":null,"walletAddressModifyDate":null,"vipIconInfo":null,"phoneWithdrawDate":null,"financialInfoModifyDate":null,"provinceName":"","city":"","bankBranch":"","emailVerify":false,"phoneVerify":false,"streamingAccountSetting":null,"isReferralAccount":true,"nationalityName":null,"countryName":null,"sourceIncome":null,"occupation":null,"isCrypto":false,"isLineLoginActive":false,"isLineBinded":false,"memGroup":"-"}'
+      );
+      window.__lc = window.__lc || {};
+      window.__lc.license = 13374150;
+      window.__lc.integration_name = "manual_channels";
+      window.__lc.product_name = "livechat";
+      //   window.__lc.asyncInit = true;
+      window.__lc.group = 161;
+      window.__lc.custom_variables = [
+        { name: "userId", value: "1234599" },
+        { name: "planType", value: "Gold99" },
+        { name: "accountStatus", value: "active99" },
+      ];
+
+      (function (n, t, c) {
+        function i(n) {
+          return e._h ? e._h.apply(null, n) : e._q.push(n);
+        }
+        var e = {
+          _q: [],
+          _h: null,
+          _v: "4.0",
+          on: function () {
+            i(["on", c.call(arguments)]);
+          },
+          once: function () {
+            i(["once", c.call(arguments)]);
+          },
+          off: function () {
+            i(["off", c.call(arguments)]);
+          },
+          get: function () {
+            if (!e._h)
+              throw new Error(
+                "[LiveChatWidget] You can't use getters before load."
+              );
+            return i(["get", c.call(arguments)]);
+          },
+          call: function () {
+            i(["call", c.call(arguments)]);
+          },
+          init: function () {
+            var n = t.createElement("script");
+            (n.async = !0),
+              (n.type = "text/javascript"),
+              (n.src = "https://cdn.livechatinc.com/tracking.js"),
+              t.head.appendChild(n);
+          },
+        };
+        !n.__lc.asyncInit && e.init(),
+          (n.LiveChatWidget = n.LiveChatWidget || e);
+      })(window, document, [].slice);
+
+      <noscript>
+        <a href="https://www.livechat.com/chat-with/13374150/" rel="nofollow">
+          Chat with us
+        </a>
+        , powered by{" "}
+        <a
+          href="https://www.livechat.com/?welcome"
+          rel="noopener nofollow"
+          target="_blank"
+        >
+          LiveChat
+        </a>
+      </noscript>;
+      <!-- End of LiveChat code -->
+
+      // Wait for LiveChatWidget initialization
+      LiveChatWidget.on("ready", () => {
+        function getCookie(name) {
+          const value = `; ${document.cookie}`;
+          const parts = value.split(`; ${name}=`);
+          if (parts.length === 2) return parts.pop().split(";").shift();
+        }
+        function decodeJWTPayload(token) {
+          const base64Url = token.split(".")[1];
+          const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+          const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+          return new TextDecoder().decode(bytes);
         }
 
-        // Now redirect to livechat page
-        window.location.href = "./livechat.html";
-      });
-  </script>
-  <!-- <script>
-      LiveChatWidget.on("ready", function () {
-        LiveChatWidget.call("set_custom_variables", {
-          user_name: "John Doe",
-          user_email: "john.doe@example.com",
-          account_id: "ABCD1234",
-          cart_value: "$150",
+        LiveChatWidget.call("set_session_variables", {
+          token: decodeJWTPayload(getCookie("token")),
         });
       });
-    </script> -->
-</body>
-
+    </script>
+  </body>
 </html>
