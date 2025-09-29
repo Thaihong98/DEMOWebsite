@@ -24,12 +24,15 @@
   </style>
 </head>
 <body>
-  <iframe src="https://www.livechat.com/chat-with/13374150/161"></iframe>
+  <iframe src="https://direct.lc.chat/13374150/161"></iframe>
   <script>
-    LC_API.set_session_variables({
-      merchantId: "12345",
-      memberId: "67890"
-    });
+    LC_API.set_custom_variables([
+  { name: "merchantId", value: "12345" },
+  { name: "memberId", value: "67890" }
+]);
+
   </script>
 </body>
 </html>
+
+params=[{"merchantId":"12345","memberId":"67890"}]
