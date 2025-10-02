@@ -1,0 +1,156 @@
+<script>
+(function () {
+    function getCookie(name) {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) return parts.pop().split(";").shift();
+    }
+
+    function decodeJWTPayload(token) {
+        if (!token) return "";
+        try {
+            const base64Url = token.split(".")[1];
+            const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
+            const bytes = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+            return new TextDecoder().decode(bytes);
+        } catch (e) {
+            console.warn("Failed to decode JWT payload:", e);
+            return "";
+        }
+    }
+    function getUserInfo() {
+        const DEFAULT_GROUP = "G007";
+        const DEFAULT_MERCHANT = "001";
+        const lang = localStorage.getItem("language") || "en-US";
+        const memInfoRaw = localStorage.getItem("memInfo");
+        const token = getCookie("token");
+
+        try {
+            if (memInfoRaw) {
+                const memInfo = JSON.parse(memInfoRaw);
+                return {
+                    name: memInfo.loginId,
+                    token: decodeJWTPayload(token),
+                    lang,
+                    groupId: DEFAULT_GROUP,
+                };
+            }
+        } catch (e) {
+            console.error("❌ 解析 memInfo 失败:", e);
+        }
+        // 默认返回
+        return {
+            token: JSON.stringify({ MerchantId: DEFAULT_MERCHANT }),
+            lang,
+            groupId: DEFAULT_GROUP,
+        };
+    }
+
+    function attachHandler(el) {
+        if (!el || el._captureHandlerAttached) return;
+        el._captureHandlerAttached = true;
+
+        el.addEventListener("click", function (event) {
+            const originalOpen = window.open;
+            let called = false;
+
+            window.open = function (...args) {
+                called = true;
+                try {
+                    const openingURL = args[0];
+                    const isLiveChat =
+                        typeof openingURL === "string" &&
+                        (openingURL.startsWith("https://secure.livechatenterprise.com/") ||
+                            openingURL.startsWith("https://secure.livechatinc.com/"));
+                    if (isLiveChat) {
+                        try {
+                            const url = new URL(openingURL, window.location.origin);
+                            const user = getUserInfo();
+                            const queryString = new URLSearchParams({ ...user }).toString();
+                            url.searchParams.append("params", queryString);
+                            args[0] = url.toString();
+                        } catch (err) {
+                            console.warn("Invalid LiveChat URL:", openingURL, err);
+                        }
+                    } else if (openingURL.startsWith("https://direct.lc.chat/")) {
+                        try {
+                            const user = getUserInfo();
+                            const url = new URL(openingURL, window.location.origin);
+                            const parts = new URL(url).pathname.split("/").filter(Boolean);
+                            const customHtml = `
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support Chat</title>
+  <style>html, body {margin: 0;padding: 0;height: 100%;overflow: hidden;}
+  iframe {width: 100%;height: 100%;border: none;display: block;}</style>
+</head>
+<body>
+  <iframe id="chatFrame" src="${openingURL}"></iframe>
+  <script>window.__lc={license:${parts[0]},group:${parts[1]}};(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n);}var e={_q:[],_h:null,_v:"4.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e;})(window,document,[].slice);
+  LiveChatWidget.on("ready", () => {
+    LiveChatWidget.call("hide");
+    LiveChatWidget.call("set_session_variables", { name: "${user.name}", token: ${JSON.stringify(user.token)}, lang: "${user.lang}", groupId: "${user.groupId}"});
+  });<\/script>
+</body>
+</html>`;
+                            const newWin = originalOpen.call(window, "", "_blank");
+                            setTimeout(() => {
+                                newWin.document.open();
+                                newWin.document.write(customHtml);
+                                newWin.document.close();
+                            }, 500);
+                            return newWin;
+                        } catch (err) {
+                            console.warn("Invalid LiveChat URL:", openingURL, err);
+                        }
+                    }
+                } finally {
+                    window.open = originalOpen;
+                }
+                return originalOpen.apply(this, args);
+            };
+
+            setTimeout(() => {
+                if (!called && window.open !== originalOpen) window.open = originalOpen;
+            }, 300);
+        }, true);
+    }
+
+    function init() {
+        const selectors = [
+            ".item.ng-star-inserted a",
+            "button.call-out.ng-star-inserted"
+        ];
+        selectors.forEach(sel => {
+            document.querySelectorAll(sel).forEach(attachHandler);
+        });
+
+        const observer = new MutationObserver((mutations) => {
+            mutations.forEach((mutation) => {
+                mutation.addedNodes.forEach((node) => {
+                    if (node.nodeType === 1) {
+                        selectors.forEach(sel => {
+                            if (node.matches(sel)) {
+                                attachHandler(node);
+                            }
+                            node.querySelectorAll?.(sel).forEach(attachHandler);
+                        });
+                    }
+                });
+            });
+        });
+        observer.observe(document.body, { childList: true, subtree: true });
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", init);
+    } else {
+        init();
+    }
+})();
+</script>
+
+<title>test 111921 EN_header</title>
+<meta name="google-site-verification" content="MquN1iFzw4S4nlWAJsQoIQuVrEWnBAu1hPkS1INVDVk" />

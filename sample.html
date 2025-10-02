@@ -1,0 +1,38 @@
+<body>
+  <div id="container"></div>
+
+  <script>
+    const parent = document.body; // or a specific container
+
+    const observer = new MutationObserver((mutations) => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
+          if (node.id === "myDiv") {
+            console.log("#myDiv was added:", node);
+          }
+        });
+
+        mutation.removedNodes.forEach(node => {
+          if (node.id === "myDiv") {
+            console.log("#myDiv was removed:", node);
+          }
+        });
+      });
+    });
+
+    observer.observe(parent, { childList: true, subtree: true });
+
+    // Test: add and remove myDiv
+    setTimeout(() => {
+      const el = document.createElement("div");
+      el.id = "myDiv";
+      el.textContent = "Hello, I am myDiv!";
+      document.body.appendChild(el);
+    }, 2000);
+
+    setTimeout(() => {
+      const el = document.getElementById("myDiv");
+      if (el) el.remove();
+    }, 5000);
+  </script>
+</body>

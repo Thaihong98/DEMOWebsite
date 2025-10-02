@@ -1,0 +1,54 @@
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Support Chat</title>
+    <style>
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            display: block;
+        }
+    </style>
+</head>
+
+<body>
+    <iframe id="chatFrame" src="https://direct.lc.chat/13374150/161"></iframe>
+    <script src="https://unpkg.com/postmate/build/postmate.min.js"></script>
+    <script>
+        const chatFrame = document.getElementById("chatFrame");
+
+        // Wait until iframe signals it’s ready
+        window.addEventListener("message", e => {
+            if (
+                e.origin === "https://direct.lc.chat" &&
+                e.data &&
+                e.data.postmate === "handshake-reply"
+            ) {
+                console.log("✅ LiveChat iframe ready");
+
+                // Now send method calls
+                chatFrame.contentWindow.postMessage(
+                    {
+                        postmate: "call",
+                        type: "application/x-postmate-v1+json",
+                        property: "maximize"
+                    },
+                    "https://direct.lc.chat"
+                );
+            }
+        });
+    </script>
+</body>
+
+</html>

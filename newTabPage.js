@@ -47,6 +47,7 @@
 
         // Case 2: direct.lc domains -> inject custom iframe wrapper
         const tokenScript = `
+        
             setTimeout(() => {
               LiveChatWidget.call("set_session_variables", {
                 token: "${token}"
