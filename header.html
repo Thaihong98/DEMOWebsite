@@ -1,5 +1,6 @@
 <script>
 (function () {
+    let called = false;
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -18,31 +19,49 @@
             return "";
         }
     }
+
+    function secureRandomString(length = 8) {
+        const arr = new Uint8Array(length);
+        crypto.getRandomValues(arr);
+        return Array.from(arr, b => b.toString(36)[0]).join('');
+    }
+
     function getUserInfo() {
         const DEFAULT_GROUP = "G007";
         const DEFAULT_MERCHANT = "001";
         const lang = localStorage.getItem("language") || "en-US";
-        const memInfoRaw = localStorage.getItem("memInfo");
-        const token = getCookie("token");
-
-        try {
-            if (memInfoRaw) {
-                const memInfo = JSON.parse(memInfoRaw);
-                return {
-                    name: memInfo.loginId,
-                    token: decodeJWTPayload(token),
-                    lang,
-                    groupId: DEFAULT_GROUP,
-                };
-            }
-        } catch (e) {
-            console.error("❌ 解析 memInfo 失败:", e);
+        let browserId = localStorage.getItem("browserId");
+        if (!browserId) {
+            browserId = `${DEFAULT_GROUP}_${DEFAULT_MERCHANT}_${lang}_${secureRandomString()}`;
+            localStorage.setItem("browserId", browserId);
         }
-        // 默认返回
+
+        const memInfoRaw = localStorage.getItem("memInfo");
+        const tokenCookie = getCookie("token");
+
+        // 解析 memInfo
+        const memInfo = safeJSONParse("localStorage.memInfo", memInfoRaw, null);
+
+        // 解析 JWT
+        const jwtPayload = tokenCookie ? decodeJWTPayload(tokenCookie) : null;
+
+        // 组装 visitor（LiveChat 建议简单 KV，复杂对象统一转字符串）
+        if (memInfo && memInfo.loginId) {
+            return {
+                name: String(memInfo.loginId),
+                token: jwtPayload ? JSON.stringify(jwtPayload) : JSON.stringify({ MerchantId: DEFAULT_MERCHANT }),
+                lang,
+                groupId: DEFAULT_GROUP,
+                browserId: browserId,
+            };
+        }
+
+        console.warn("🟡 memInfo 不存在或无 loginId，使用默认 visitor。");
         return {
             token: JSON.stringify({ MerchantId: DEFAULT_MERCHANT }),
             lang,
             groupId: DEFAULT_GROUP,
+            browserId: browserId,
         };
     }
 
@@ -52,58 +71,98 @@
 
         el.addEventListener("click", function (event) {
             const originalOpen = window.open;
-            let called = false;
 
             window.open = function (...args) {
                 called = true;
+                let parts = ["13374150"]; // 默认值
+                const user = getUserInfo();
                 try {
                     const openingURL = args[0];
-                    const isLiveChat =
-                        typeof openingURL === "string" &&
-                        (openingURL.startsWith("https://secure.livechatenterprise.com/") ||
-                            openingURL.startsWith("https://secure.livechatinc.com/"));
-                    if (isLiveChat) {
-                        try {
-                            const url = new URL(openingURL, window.location.origin);
-                            const user = getUserInfo();
-                            const queryString = new URLSearchParams({ ...user }).toString();
-                            url.searchParams.append("params", queryString);
-                            args[0] = url.toString();
-                        } catch (err) {
-                            console.warn("Invalid LiveChat URL:", openingURL, err);
+                    const isLiveChat = typeof openingURL === "string" && (openingURL.startsWith("https://secure.livechatenterprise.com/") || openingURL.startsWith("https://secure.livechatinc.com/"));
+                    const isDirectLiveChatURL = openingURL.startsWith("https://direct.lc.chat/");
+                    if (isLiveChat || isDirectLiveChatURL) {
+                        if (isLiveChat) {
+                            try {
+                                const url = new URL(openingURL, window.location.origin);
+                                const queryString = new URLSearchParams({ ...user }).toString();
+                                url.searchParams.append("params", queryString);
+                                args[0] = url.toString();
+                                const params = url.searchParams;
+                                parts[0] = params.get('license_id');
+                                parts[1] = params.get('group');
+                            } catch (err) {
+                                console.warn("Invalid LiveChat URL:", openingURL, err);
+                            }
+                        } else if (isDirectLiveChatURL) {
+                            try {
+                                const url = new URL(openingURL, window.location.origin);
+                                parts = new URL(url).pathname.split("/").filter(Boolean);
+                                const customHtml = `
+        <html lang="en">
+        <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Support Chat</title>
+        <style>html, body {margin: 0;padding: 0;height: 100%;overflow: hidden;}
+        iframe {width: 100%;height: 100%;border: none;display: block;}</style>
+        </head>
+        <body>
+        <iframe id="chatFrame" src="${openingURL}"></iframe>
+        <script>
+        LiveChatWidget.on("ready", () => {
+            LiveChatWidget.call("set_session_variables", { name: "${user.name}", token: ${JSON.stringify(user.token)}, lang: "${user.lang}", groupId: "${user.groupId}", browserId:"${user.browserId}"});
+        });<\/script>
+        </body>
+        </html>`;
+                                const newWin = originalOpen.call(window, "", "_blank");
+                                setTimeout(() => {
+                                    newWin.document.open();
+                                    newWin.document.write(customHtml);
+                                    newWin.document.close();
+                                }, 500);
+                                return newWin;
+                            } catch (err) {
+                                console.warn("Invalid LiveChat URL:", openingURL, err);
+                            }
                         }
-                    } else if (openingURL.startsWith("https://direct.lc.chat/")) {
-                        try {
-                            const user = getUserInfo();
-                            const url = new URL(openingURL, window.location.origin);
-                            const parts = new URL(url).pathname.split("/").filter(Boolean);
-                            const customHtml = `
-<html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Support Chat</title>
-  <style>html, body {margin: 0;padding: 0;height: 100%;overflow: hidden;}
-  iframe {width: 100%;height: 100%;border: none;display: block;}</style>
-</head>
-<body>
-  <iframe id="chatFrame" src="${openingURL}"></iframe>
-  <script>window.__lc={license:${parts[0]},group:${parts[1]}};(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n);}var e={_q:[],_h:null,_v:"4.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e;})(window,document,[].slice);
-  LiveChatWidget.on("ready", () => {
+                        const existingScript = document.getElementById("LiveChatWidget");
+                        if (!existingScript) {
+                            const script = document.createElement("script");
+                            script.id = "LiveChatWidget";
+                            parts[1] = parts[1] ? `,group:${parts[1]}` : "";  //some livechat URLs do not have group part
+                            script.textContent = `window.__lc={license:${parts[0]}${parts[1]}};(function(n,t,c){function i(n){return e._h?e._h.apply(null,n):e._q.push(n);}var e={_q:[],_h:null,_v:"4.0",on:function(){i(["on",c.call(arguments)])},once:function(){i(["once",c.call(arguments)])},off:function(){i(["off",c.call(arguments)])},get:function(){if(!e._h)throw new Error("[LiveChatWidget] You can't use getters before load.");return i(["get",c.call(arguments)])},call:function(){i(["call",c.call(arguments)])},init:function(){var n=t.createElement("script");n.async=!0,n.type="text/javascript",n.src="https://cdn.livechatinc.com/tracking.js",t.head.appendChild(n)}};!n.__lc.asyncInit&&e.init(),n.LiveChatWidget=n.LiveChatWidget||e;})(window,document,[].slice);
+    LiveChatWidget.on("ready", () => {
     LiveChatWidget.call("hide");
-    LiveChatWidget.call("set_session_variables", { name: "${user.name}", token: ${JSON.stringify(user.token)}, lang: "${user.lang}", groupId: "${user.groupId}"});
-  });<\/script>
-</body>
-</html>`;
-                            const newWin = originalOpen.call(window, "", "_blank");
-                            setTimeout(() => {
-                                newWin.document.open();
-                                newWin.document.write(customHtml);
-                                newWin.document.close();
-                            }, 500);
-                            return newWin;
-                        } catch (err) {
-                            console.warn("Invalid LiveChat URL:", openingURL, err);
+    LiveChatWidget.call("set_session_variables", { name: "${user.name}", token: ${JSON.stringify(user.token)}, lang: "${user.lang}", groupId: "${user.groupId}", browserId:"${user.browserId}" });
+    console.log("LiveChat session variables set.");
+    });`;
+                            script.async = true;
+                            document.head.appendChild(script);
+                        }
+
+                        /** ------------------ 监听 memInfo 变化 ------------------ **/
+                        const originalSetItem = localStorage.setItem;
+                        localStorage.setItem = function (key, value) {
+                            originalSetItem.apply(this, arguments);
+                            if (key === "memInfo") {
+                                // Same-tab memInfo setItem
+                                handleMemInfoChange(value);
+                            }
+                        };
+                        // Cross-tab listener (still needed for other tabs)
+                        window.addEventListener("storage", (event) => {
+                            if (event.key === "memInfo" && event.newValue !== null) {
+                                handleMemInfoChange(event.newValue);
+                            }
+                        });
+
+                        function handleMemInfoChange(newValue) {
+                            LiveChatWidget.on("ready", () => {
+                                console.log("✅ memInfo 变化，更新 visitor");
+                                LiveChatWidget.on("ready", () => {
+                                    LiveChatWidget.call("set_session_variables", getUserInfo());
+                                });
+                            });
                         }
                     }
                 } finally {
