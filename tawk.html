@@ -16,32 +16,43 @@
     (function () {
       'use strict';
 
-      var OriginalWebSocket = window.WebSocket;
+      const OriginalWebSocket = window.WebSocket;
+      let lastTawkWs = null;
+      let lastTemplate = null;
+      let sendQueue = [];
+
+      function flushQueue() {
+        if (!lastTawkWs || lastTawkWs.readyState !== OriginalWebSocket.OPEN) return;
+        while (sendQueue.length) lastTawkWs.send(sendQueue.shift());
+      }
 
       window.WebSocket = function (url, protocols) {
-        if (!(url && url.includes('tawk'))) return;
-        var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
-        var originalSend = ws.send.bind(ws);
-        console.log(url);
+        const ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
+        if (url && url.includes('tawk')) {
+          lastTawkWs = ws;
+
+          ws.addEventListener('open', () => flushQueue());
+          ws.addEventListener('close', () => { /* keep lastTawkWs for diagnostics */ });
+        }
+
+        const originalSend = ws.send.bind(ws);
 
         ws.send = function (data) {
-          console.log(data);
           try {
             if (typeof data === 'string' && data.startsWith('4{')) {
-              var parsed = JSON.parse(data.substring(1));
-
+              const parsed = JSON.parse(data.substring(1));
+              // keep a template of the intercepted packet so we can reuse structure
+              lastTemplate = parsed;
+              // example modification (optional)
               if (parsed.c === 'service' && parsed.p && parsed.p[1] === '/v1/message/visitor') {
-                var msg = parsed.p[2];
-                console.log('💬 Message:', msg.message);
-
-                // MODIFY
-                msg.message = '[MODIFIED] ' + msg.message;
-
+                const msg = parsed.p[2];
+                console.log('Intercepted visitor message:', msg.message);
+                // msg.message = '[MODIFIED] ' + msg.message; // uncomment to auto-modify
                 parsed.p[2] = msg;
                 data = '4' + JSON.stringify(parsed);
               }
             }
-          } catch (e) { }
+          } catch (e) { /* ignore parse errors */ }
 
           return originalSend(data);
         };
@@ -49,14 +60,47 @@
         return ws;
       };
 
+      // preserve constants and prototype
       window.WebSocket.prototype = OriginalWebSocket.prototype;
-      window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
-      window.WebSocket.OPEN = OriginalWebSocket.OPEN;
-      window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
-      window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
+      ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'].forEach(k => {
+        window.WebSocket[k] = OriginalWebSocket[k];
+      });
 
-      console.log('✅ Interceptor ready');
+      // Public helper: send raw string via intercepted websocket (queues if not open)
+      window.tawkSendRaw = function (raw) {
+        if (!lastTawkWs) throw new Error('No tawk websocket captured yet');
+        if (lastTawkWs.readyState === OriginalWebSocket.OPEN) {
+          lastTawkWs.send(raw);
+        } else {
+          sendQueue.push(raw);
+        }
+      };
+
+      // Public helper: send a visitor message using the intercepted packet template.
+      // text: string message to send
+      window.tawkSendVisitorMessage = function (text) {
+        if (!lastTemplate) {
+          // fallback minimal packet if no template captured yet
+          const fallback = { c: 'service', p: [null, '/v1/message/visitor', { message: text }] };
+          const payload = '4' + JSON.stringify(fallback);
+          return window.tawkSendRaw(payload);
+        }
+
+        // deep clone template and replace the message
+        const tpl = JSON.parse(JSON.stringify(lastTemplate));
+        // find the p[2] message object (structure observed in interception)
+        if (tpl.p && tpl.p[2] && typeof tpl.p[2] === 'object') {
+          tpl.p[2].message = text;
+        } else {
+          tpl.p[2] = { message: text };
+        }
+        const packet = '4' + JSON.stringify(tpl);
+        window.tawkSendRaw(packet);
+      };
+
+      console.log('Interceptor ready');
     })();
+
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     (function () {
       var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
@@ -69,7 +113,7 @@
     window.Tawk_API.onLoad = function () {
       window.Tawk_API.setAttributes(
         {
-          name: 'John Doe'+Date.now(),
+          name: 'John Doe' + Date.now(),
           email: 'visitor@yourdomain.com',
           id: 'USER-123',         // optional custom ID for your tracking
           // hash: 'SECURE_HASH'     // optional, for secure mode
