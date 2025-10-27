@@ -65,82 +65,20 @@
       s1.setAttribute('crossorigin', '*');
       s0.parentNode.insertBefore(s1, s0);
     })();
-    // // Paste/run early (document_start) to catch connections created later.
-    // // Also attempts to patch already-open sockets.
-    // (function () {
-    //   const OrigWS = window.WebSocket;
-    //   const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder() : null;
-
-    //   function decodeData(data) {
-    //     try {
-    //       if (typeof data === 'string') return data;
-    //       if (data instanceof ArrayBuffer) return textDecoder ? textDecoder.decode(data) : new Uint8Array(data).toString();
-    //       if (ArrayBuffer.isView(data)) return textDecoder ? textDecoder.decode(data.buffer) : new Uint8Array(data.buffer).toString();
-    //       if (data instanceof Blob) {
-    //         // synchronous placeholder; Blob needs async read if you want content. return metadata.
-    //         return '[Blob length=' + data.size + ']';
-    //       }
-    //       return String(data);
-    //     } catch (e) {
-    //       return '[unserializable data]';
-    //     }
-    //   }
-
-    //   // dispatch helper
-    //   function emit(direction, url, payload) {
-    //     const detail = { direction, url, payload, ts: Date.now() };
-    //     // DOM event for page or extensions to listen
-    //     window.dispatchEvent(new CustomEvent('ws-intercept', { detail }));
-    //     // also log
-    //     console.debug('WS-INTERCEPT', detail);
-    //   }
-
-    //   // Replace constructor
-    //   window.WebSocket = function (url, protocols) {
-    //     const ws = protocols ? new OrigWS(url, protocols) : new OrigWS(url);
-
-    //     // wrap send
-    //     const origSend = ws.send;
-    //     ws.send = function (data) {
-    //       let payload = decodeData(data);
-    //       emit('outgoing', url, payload);
-    //       return origSend.call(this, data);
-    //     };
-
-    //     // wrap incoming
-    //     ws.addEventListener('message', function (evt) {
-    //       let payload = decodeData(evt.data);
-    //       emit('incoming', url, payload);
-    //     });
-
-    //     return ws;
-    //   };
-
-    //   // keep prototype and constants
-    //   window.WebSocket.prototype = OrigWS.prototype;
-    //   ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED', 'binaryType'].forEach(k => {
-    //     if (k in OrigWS) window.WebSocket[k] = OrigWS[k];
-    //   });
-
-    //   // Patch already-open sockets (if injection late)
-    //   try {
-    //     for (const key in window) {
-    //       try {
-    //         const val = window[key];
-    //         if (val && val instanceof OrigWS) {
-    //           // wrap send if not already wrapped
-    //           if (!val.__ws_intercepted) {
-    //             const oSend = val.send.bind(val);
-    //             val.send = function (d) { emit('outgoing', val.url || 'unknown', decodeData(d)); return oSend(d); };
-    //             val.addEventListener('message', evt => emit('incoming', val.url || 'unknown', decodeData(evt.data)));
-    //             val.__ws_intercepted = true;
-    //           }
-    //         }
-    //       } catch (e) { }
-    //     }
-    //   } catch (e) { }
-
-    // })();
+    window.Tawk_API.onLoad = function () {
+      window.Tawk_API.setAttributes(
+        {
+          name: 'John Doe',
+          email: 'john@example.com',
+          id: 'USER-123',         // optional custom ID for your tracking
+          hash: 'SECURE_HASH'     // optional, for secure mode
+        },
+        function (error) {
+          if (error) console.error('Tawk setAttributes error:', error);
+          else console.log('Attributes set');
+        }
+      );
+    };
 
   </script>
   <!--End of Tawk.to Script-->
