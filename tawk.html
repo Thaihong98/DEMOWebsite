@@ -22,8 +22,10 @@
         var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
         var originalSend = ws.send.bind(ws);
         var isTawkSocket = url && url.includes('tawk');
+        console.log(url);
 
         ws.send = function (data) {
+          console.log(data);
           try {
             var parsed = JSON.parse(data);
 
