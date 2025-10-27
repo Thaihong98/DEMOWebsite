@@ -22,6 +22,7 @@
         if (!(url && url.includes('tawk'))) return;
         var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
         var originalSend = ws.send.bind(ws);
+        console.log(url);
 
         ws.send = function (data) {
           console.log(data);
