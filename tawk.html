@@ -19,34 +19,26 @@
       var OriginalWebSocket = window.WebSocket;
 
       window.WebSocket = function (url, protocols) {
+        if (!(url && url.includes('tawk'))) return;
         var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
         var originalSend = ws.send.bind(ws);
-        var isTawkSocket = url && url.includes('tawk');
-        console.log(url);
 
         ws.send = function (data) {
           console.log(data);
           try {
-            var parsed = JSON.parse(data);
+            if (typeof data === 'string' && data.startsWith('4{')) {
+              var parsed = JSON.parse(data.substring(1));
 
-            if (Array.isArray(parsed) &&
-              parsed[0] === 'service' &&
-              parsed[2] === '/v1/message/visitor') {
+              if (parsed.c === 'service' && parsed.p && parsed.p[1] === '/v1/message/visitor') {
+                var msg = parsed.p[2];
+                console.log('💬 Message:', msg.message);
 
-              var messageData = parsed[3];
-              console.log('💬 Intercepted:', messageData.message);
+                // MODIFY
+                msg.message = '[MODIFIED] ' + msg.message;
 
-              // MODIFY MESSAGE
-              if (messageData.message) {
-                messageData.message = '[MODIFIED] ' + messageData.message;
+                parsed.p[2] = msg;
+                data = '4' + JSON.stringify(parsed);
               }
-
-              // BLOCK MESSAGE (uncomment to block)
-              // console.log('🚫 Message blocked');
-              // return;
-
-              parsed[3] = messageData;
-              data = JSON.stringify(parsed);
             }
           } catch (e) { }
 
