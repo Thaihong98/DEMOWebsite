@@ -13,6 +13,55 @@
 
   <!--Start of Tawk.to Script-->
   <script type="text/javascript">
+    (function () {
+      'use strict';
+
+      var OriginalWebSocket = window.WebSocket;
+
+      window.WebSocket = function (url, protocols) {
+        var ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
+        var originalSend = ws.send.bind(ws);
+        var isTawkSocket = url && url.includes('tawk');
+
+        ws.send = function (data) {
+          try {
+            var parsed = JSON.parse(data);
+
+            if (Array.isArray(parsed) &&
+              parsed[0] === 'service' &&
+              parsed[2] === '/v1/message/visitor') {
+
+              var messageData = parsed[3];
+              console.log('💬 Intercepted:', messageData.message);
+
+              // MODIFY MESSAGE
+              if (messageData.message) {
+                messageData.message = '[MODIFIED] ' + messageData.message;
+              }
+
+              // BLOCK MESSAGE (uncomment to block)
+              // console.log('🚫 Message blocked');
+              // return;
+
+              parsed[3] = messageData;
+              data = JSON.stringify(parsed);
+            }
+          } catch (e) { }
+
+          return originalSend(data);
+        };
+
+        return ws;
+      };
+
+      window.WebSocket.prototype = OriginalWebSocket.prototype;
+      window.WebSocket.CONNECTING = OriginalWebSocket.CONNECTING;
+      window.WebSocket.OPEN = OriginalWebSocket.OPEN;
+      window.WebSocket.CLOSING = OriginalWebSocket.CLOSING;
+      window.WebSocket.CLOSED = OriginalWebSocket.CLOSED;
+
+      console.log('✅ Interceptor ready');
+    })();
     var Tawk_API = Tawk_API || {}, Tawk_LoadStart = new Date();
     (function () {
       var s1 = document.createElement("script"), s0 = document.getElementsByTagName("script")[0];
@@ -22,82 +71,82 @@
       s1.setAttribute('crossorigin', '*');
       s0.parentNode.insertBefore(s1, s0);
     })();
-    // Paste/run early (document_start) to catch connections created later.
-    // Also attempts to patch already-open sockets.
-    (function () {
-      const OrigWS = window.WebSocket;
-      const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder() : null;
+    // // Paste/run early (document_start) to catch connections created later.
+    // // Also attempts to patch already-open sockets.
+    // (function () {
+    //   const OrigWS = window.WebSocket;
+    //   const textDecoder = typeof TextDecoder !== 'undefined' ? new TextDecoder() : null;
 
-      function decodeData(data) {
-        try {
-          if (typeof data === 'string') return data;
-          if (data instanceof ArrayBuffer) return textDecoder ? textDecoder.decode(data) : new Uint8Array(data).toString();
-          if (ArrayBuffer.isView(data)) return textDecoder ? textDecoder.decode(data.buffer) : new Uint8Array(data.buffer).toString();
-          if (data instanceof Blob) {
-            // synchronous placeholder; Blob needs async read if you want content. return metadata.
-            return '[Blob length=' + data.size + ']';
-          }
-          return String(data);
-        } catch (e) {
-          return '[unserializable data]';
-        }
-      }
+    //   function decodeData(data) {
+    //     try {
+    //       if (typeof data === 'string') return data;
+    //       if (data instanceof ArrayBuffer) return textDecoder ? textDecoder.decode(data) : new Uint8Array(data).toString();
+    //       if (ArrayBuffer.isView(data)) return textDecoder ? textDecoder.decode(data.buffer) : new Uint8Array(data.buffer).toString();
+    //       if (data instanceof Blob) {
+    //         // synchronous placeholder; Blob needs async read if you want content. return metadata.
+    //         return '[Blob length=' + data.size + ']';
+    //       }
+    //       return String(data);
+    //     } catch (e) {
+    //       return '[unserializable data]';
+    //     }
+    //   }
 
-      // dispatch helper
-      function emit(direction, url, payload) {
-        const detail = { direction, url, payload, ts: Date.now() };
-        // DOM event for page or extensions to listen
-        window.dispatchEvent(new CustomEvent('ws-intercept', { detail }));
-        // also log
-        console.debug('WS-INTERCEPT', detail);
-      }
+    //   // dispatch helper
+    //   function emit(direction, url, payload) {
+    //     const detail = { direction, url, payload, ts: Date.now() };
+    //     // DOM event for page or extensions to listen
+    //     window.dispatchEvent(new CustomEvent('ws-intercept', { detail }));
+    //     // also log
+    //     console.debug('WS-INTERCEPT', detail);
+    //   }
 
-      // Replace constructor
-      window.WebSocket = function (url, protocols) {
-        const ws = protocols ? new OrigWS(url, protocols) : new OrigWS(url);
+    //   // Replace constructor
+    //   window.WebSocket = function (url, protocols) {
+    //     const ws = protocols ? new OrigWS(url, protocols) : new OrigWS(url);
 
-        // wrap send
-        const origSend = ws.send;
-        ws.send = function (data) {
-          let payload = decodeData(data);
-          emit('outgoing', url, payload);
-          return origSend.call(this, data);
-        };
+    //     // wrap send
+    //     const origSend = ws.send;
+    //     ws.send = function (data) {
+    //       let payload = decodeData(data);
+    //       emit('outgoing', url, payload);
+    //       return origSend.call(this, data);
+    //     };
 
-        // wrap incoming
-        ws.addEventListener('message', function (evt) {
-          let payload = decodeData(evt.data);
-          emit('incoming', url, payload);
-        });
+    //     // wrap incoming
+    //     ws.addEventListener('message', function (evt) {
+    //       let payload = decodeData(evt.data);
+    //       emit('incoming', url, payload);
+    //     });
 
-        return ws;
-      };
+    //     return ws;
+    //   };
 
-      // keep prototype and constants
-      window.WebSocket.prototype = OrigWS.prototype;
-      ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED', 'binaryType'].forEach(k => {
-        if (k in OrigWS) window.WebSocket[k] = OrigWS[k];
-      });
+    //   // keep prototype and constants
+    //   window.WebSocket.prototype = OrigWS.prototype;
+    //   ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED', 'binaryType'].forEach(k => {
+    //     if (k in OrigWS) window.WebSocket[k] = OrigWS[k];
+    //   });
 
-      // Patch already-open sockets (if injection late)
-      try {
-        for (const key in window) {
-          try {
-            const val = window[key];
-            if (val && val instanceof OrigWS) {
-              // wrap send if not already wrapped
-              if (!val.__ws_intercepted) {
-                const oSend = val.send.bind(val);
-                val.send = function (d) { emit('outgoing', val.url || 'unknown', decodeData(d)); return oSend(d); };
-                val.addEventListener('message', evt => emit('incoming', val.url || 'unknown', decodeData(evt.data)));
-                val.__ws_intercepted = true;
-              }
-            }
-          } catch (e) { }
-        }
-      } catch (e) { }
+    //   // Patch already-open sockets (if injection late)
+    //   try {
+    //     for (const key in window) {
+    //       try {
+    //         const val = window[key];
+    //         if (val && val instanceof OrigWS) {
+    //           // wrap send if not already wrapped
+    //           if (!val.__ws_intercepted) {
+    //             const oSend = val.send.bind(val);
+    //             val.send = function (d) { emit('outgoing', val.url || 'unknown', decodeData(d)); return oSend(d); };
+    //             val.addEventListener('message', evt => emit('incoming', val.url || 'unknown', decodeData(evt.data)));
+    //             val.__ws_intercepted = true;
+    //           }
+    //         }
+    //       } catch (e) { }
+    //     }
+    //   } catch (e) { }
 
-    })();
+    // })();
 
   </script>
   <!--End of Tawk.to Script-->
