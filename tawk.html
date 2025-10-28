@@ -15,21 +15,42 @@
   <script type="text/javascript">
     (function () {
       'use strict';
-
       const OriginalWebSocket = window.WebSocket;
       let lastTawkWs = null;
 
       window.WebSocket = function (url, protocols) {
+        if (!url || !url.includes('tawk')) return new OriginalWebSocket(url, protocols);
         const ws = protocols ? new OriginalWebSocket(url, protocols) : new OriginalWebSocket(url);
-        if (url && url.includes('tawk')) lastTawkWs = ws;
+        lastTawkWs = ws;
         const originalSend = ws.send.bind(ws);
+        let initSetAttributes = false;
 
         ws.send = function (data) {
           try {
+            if (!initSetAttributes) {
+              initSetAttributes = true;
+              // '4{"c":"setAttributes","cb":1,"p":[{"name":"John Doe","email":"john@example.com","id":"USER-123"}]}'
+              const customPacket = {
+                c: 'setAttributes',
+                cb: 1,
+                p: [
+                  {
+                    name: 'John Doe',
+                    email: 'john@example.com',
+                    id: 'USER-123'
+                  }
+                ]
+              };
+
+              const raw = '4' + JSON.stringify(customPacket);
+              console.log('Injecting custom packet before first send:', raw);
+              originalSend(raw);
+            }
+
             if (typeof data === 'string' && data.startsWith('4{')) {
               const parsed = JSON.parse(data.slice(1));
               if (parsed.c === 'service' && parsed.p?.[1] === '/v1/message/visitor') {
-                console.log('intercepted message:', parsed.p[2].message);
+                console.log('Intercepted visitor message:', parsed.p[2].message);
               }
             }
           } catch { }
@@ -41,17 +62,12 @@
       window.WebSocket.prototype = OriginalWebSocket.prototype;
       ['CONNECTING', 'OPEN', 'CLOSING', 'CLOSED'].forEach(k => window.WebSocket[k] = OriginalWebSocket[k]);
 
-      // this never creates a new socket, it reuses the captured one
-      window.tawkSend = function (text) {
-        if (!lastTawkWs) throw new Error('No Tawk WebSocket captured yet');
+      // helper to reuse captured websocket
+      window.tawkSend = function (raw) {
+        if (!lastTawkWs) return console.warn('No Tawk WebSocket captured yet');
         if (lastTawkWs.readyState !== OriginalWebSocket.OPEN)
           return console.warn('Tawk socket not open yet');
-
-        const packet = {
-          c: 'service',
-          p: [null, '/v1/message/visitor', { message: text }]
-        };
-        lastTawkWs.send('4' + JSON.stringify(packet));
+        lastTawkWs.send(raw);
       };
 
       console.log('Interceptor ready');
@@ -66,20 +82,20 @@
       s1.setAttribute('crossorigin', '*');
       s0.parentNode.insertBefore(s1, s0);
     })();
-    window.Tawk_API.onLoad = function () {
-      window.Tawk_API.setAttributes(
-        {
-          name: 'John Doe' + Date.now(),
-          email: 'visitor@yourdomain.com',
-          id: 'USER-123',         // optional custom ID for your tracking
-          // hash: 'SECURE_HASH'     // optional, for secure mode
-        },
-        function (error) {
-          if (error) console.error('Tawk setAttributes error:', error);
-          else console.log('Attributes set');
-        }
-      );
-    };
+    // window.Tawk_API.onLoad = function () {
+    //   window.Tawk_API.setAttributes(
+    //     {
+    //       name: 'John Doe' + Date.now(),
+    //       email: 'visitor@yourdomain.com',
+    //       id: 'USER-123',         // optional custom ID for your tracking
+    //       // hash: 'SECURE_HASH'     // optional, for secure mode
+    //     },
+    //     function (error) {
+    //       if (error) console.error('Tawk setAttributes error:', error);
+    //       else console.log('Attributes set');
+    //     }
+    //   );
+    // };
 
   </script>
   <!--End of Tawk.to Script-->
