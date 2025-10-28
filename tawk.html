@@ -27,25 +27,25 @@
 
         ws.send = function (data) {
           try {
-            if (!initSetAttributes) {
-              initSetAttributes = true;
-              // '4{"c":"setAttributes","cb":1,"p":[{"name":"John Doe","email":"john@example.com","id":"USER-123"}]}'
-              const customPacket = {
-                c: 'setAttributes',
-                cb: 1,
-                p: [
-                  {
-                    name: 'John Doe',
-                    email: 'john@example.com',
-                    id: 'USER-123'
-                  }
-                ]
-              };
+            // if (!initSetAttributes) {
+            //   initSetAttributes = true;
+            //   // '4{"c":"setAttributes","cb":1,"p":[{"name":"John Doe","email":"john@example.com","id":"USER-123"}]}'
+            //   const customPacket = {
+            //     c: 'setAttributes',
+            //     cb: 1,
+            //     p: [
+            //       {
+            //         name: 'John Doe',
+            //         email: 'john@example.com',
+            //         id: 'USER-123'
+            //       }
+            //     ]
+            //   };
 
-              const raw = '4' + JSON.stringify(customPacket);
-              console.log('Injecting custom packet before first send:', raw);
-              window.tawkSend(raw);
-            }
+            //   const raw = '4' + JSON.stringify(customPacket);
+            //   console.log('Injecting custom packet before first send:', raw);
+            //   window.tawkSend(raw);
+            // }
 
             if (typeof data === 'string' && data.startsWith('4{')) {
               const parsed = JSON.parse(data.slice(1));
@@ -53,7 +53,9 @@
                 console.log('Intercepted visitor message:', parsed.p[2].message);
               }
             }
-          } catch { }
+          } catch (e) {
+            console.error('Interceptor websocket send error' + e);
+          }
           return originalSend(data);
         };
         return ws;
@@ -82,20 +84,20 @@
       s1.setAttribute('crossorigin', '*');
       s0.parentNode.insertBefore(s1, s0);
     })();
-    // window.Tawk_API.onLoad = function () {
-    //   window.Tawk_API.setAttributes(
-    //     {
-    //       name: 'John Doe' + Date.now(),
-    //       email: 'visitor@yourdomain.com',
-    //       id: 'USER-123',         // optional custom ID for your tracking
-    //       // hash: 'SECURE_HASH'     // optional, for secure mode
-    //     },
-    //     function (error) {
-    //       if (error) console.error('Tawk setAttributes error:', error);
-    //       else console.log('Attributes set');
-    //     }
-    //   );
-    // };
+    window.Tawk_API.onLoad = function () {
+      window.Tawk_API.setAttributes(
+        {
+          name: 'John Doe99' + Date.now(),
+          email: 'visitor@yourdomain.com',
+          id: 'USER-123',         // optional custom ID for your tracking
+          // hash: 'SECURE_HASH'     // optional, for secure mode
+        },
+        function (error) {
+          if (error) console.error('Tawk setAttributes error:', error);
+          else console.log('Attributes set');
+        }
+      );
+    };
 
   </script>
   <!--End of Tawk.to Script-->
