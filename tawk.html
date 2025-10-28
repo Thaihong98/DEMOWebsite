@@ -44,7 +44,7 @@
 
               const raw = '4' + JSON.stringify(customPacket);
               console.log('Injecting custom packet before first send:', raw);
-              originalSend(raw);
+              window.tawkSend(raw);
             }
 
             if (typeof data === 'string' && data.startsWith('4{')) {
