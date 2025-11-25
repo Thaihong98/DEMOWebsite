@@ -22,26 +22,39 @@
       /* removes inline whitespace */
     }
   </style>
-</head>
-<body>
-  <iframe src="https://direct.lc.chat/13374150/161"></iframe>
   <script>
-    LC_API.set_custom_variables([
-  { name: "merchantId", value: "12345" },
-  { name: "memberId", value: "67890" }
-]);
-
+    localStorage.setItem("token", 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1lIjoiVGVzdFJEMjFARzAwMyIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWVpZGVudGlmaWVyIjoiVGVzdFJEMjFARzAwMyIsIlRva2VuIjoiMzQ5NjQ4NTAtMjA4Ny00NzA3LTg4ZTQtZGQwZjc4ZTI4ZmU0IiwiTWVyY2hhbnRHcm91cCI6IkcwMDMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiIxMTciLCJqdGkiOiJkNGQ4YjhhYy1jNDQ1LTQxNWEtOGZlNS01NTNlZTNjMzQ5OTciLCJleHAiOjE3NjM2MjQyNDksImlzcyI6Ind3dy5pbmRvY2FzaC5jb20iLCJhdWQiOiJJZGVudGl0eVVzZXIifQ.X0nzPFTUpVGCr-37l_PVh0OaZDQ4h2pPc9Ajmw2Ej6U');
+    localStorage.setItem("accountInfo", '{"sessionId":"1cf9b489-7c3b-41d2-a2bf-7b9dc45841f5","userId":"TestRD21@G003","roleId":117,"loginId":"TestRD21","supportCurrency":"CNY,IDR,MYR,THB,USD,USDT,VND","groupId":"G003","defaultTheme":"dark","defaultLanguage":"en-US","defaultCurrency":"IDR","defaultDayComparison":"P14D"}');
   </script>
-  <script>
-const script = document.createElement('script');
-script.src = `http://localhost:3001/memberSite/seo.js?t=${Date.now()}`;
-script.setAttribute('group', "G007");
-script.setAttribute('merchant', "001");
-script.setAttribute('lc-license', "13374150");
-script.setAttribute('lc-group', "161");
-document.body.appendChild(script);
-</script>
-</body>
-</html>
+</head>
 
-params=[{"merchantId":"12345","memberId":"67890"}]
+<body>
+  <script>
+    window.difyChatbotConfig = {
+      token: 'wDsHipcwOMFIOyME',
+      baseUrl: 'http://app_dify.izp.me',
+      inputs: {
+        userJWT: localStorage.getItem("token") || "", 
+      },
+      userVariables: {
+        // avatar_url: 'YOU CAN DEFINE USER AVATAR URL HERE',
+        name: JSON.parse(localStorage.getItem("accountInfo")).loginId || "",
+      },
+    }
+  </script>
+  <script src="http://app_dify.izp.me/embed.min.js" id="wDsHipcwOMFIOyME" defer>
+  </script>
+  <style>
+    #dify-chatbot-bubble-button {
+      background-color: #1C64F2 !important;
+    }
+
+    #dify-chatbot-bubble-window {
+      width: 24rem !important;
+      height: 40rem !important;
+    }
+  </style>
+
+</body>
+
+</html>

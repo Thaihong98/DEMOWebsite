@@ -35,4 +35,30 @@
       if (el) el.remove();
     }, 5000);
   </script>
+  <script>
+    window.difyChatbotConfig = {
+      token: 'wDsHipcwOMFIOyME',
+      baseUrl: 'http://app_dify.izp.me',
+      inputs: {
+        userJWT: localStorage.getItem("token") || "", 
+      },
+      userVariables: {
+        // avatar_url: 'YOU CAN DEFINE USER AVATAR URL HERE',
+        name: JSON.parse(localStorage.getItem("acctInfo")).loginId || "",
+      },
+    }
+  </script>
+  <script src="https://app_dify.izp.me/embed.min.js" id="wDsHipcwOMFIOyME" defer>
+  </script>
+  <style>
+    #dify-chatbot-bubble-button {
+      background-color: #1C64F2 !important;
+    }
+
+    #dify-chatbot-bubble-window {
+      width: 24rem !important;
+      height: 40rem !important;
+    }
+  </style>
+  
 </body>
