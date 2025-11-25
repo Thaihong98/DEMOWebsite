@@ -10,6 +10,7 @@
 <body>
   <h1>Welcome</h1>
   <p>Chat with us using the widget in the corner.</p>
+</body>
 
   <script>
     const script = document.createElement('scriptSEO');
@@ -19,13 +20,10 @@
     script.setAttribute('tawk-propertyId', "68f9a0afd84f3b1958007fd2");
     script.setAttribute('tawk-widgetId', "1j87hnbo1");
     document.body.appendChild(script);
-  </script>
-  <noscript></noscript>
-
-  <script>
-    const script = document.createElement('scriptCMS');
+  
+    const scriptCMS = document.createElement('scriptCMS');
     script.src = `https://sg-ic-gw.izp.me/memberSite/tawk_cms.js?t=${Date.now()}`;
-    document.body.appendChild(script);
+    document.body.appendChild(scriptCMS);
   </script>
   <noscript></noscript>
 
@@ -44,6 +42,4 @@
     })();
   </script>
   <!--End of Tawk.to Script-->
-</body>
-
 </html>
