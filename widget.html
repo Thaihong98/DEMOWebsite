@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>GitHub Profile</title>
+
+  <!-- Start of LiveChat (www.livechat.com) code -->
+  <script>
+    window.__lc = window.__lc || {};
+    window.__lc.license = 13374150;
+    window.__lc.integration_name = "manual_channels";
+    window.__lc.product_name = "livechat";
+    // window.__lc.asyncInit = true;
+    window.__lc.group = 161;
+    setCustomIdentityProvider();
+    ; (function (n, t, c) { function i(n) { return e._h ? e._h.apply(null, n) : e._q.push(n) } var e = { _q: [], _h: null, _v: "2.0", on: function () { i(["on", c.call(arguments)]) }, once: function () { i(["once", c.call(arguments)]) }, off: function () { i(["off", c.call(arguments)]) }, get: function () { if (!e._h) throw new Error("[LiveChatWidget] You can't use getters before load."); return i(["get", c.call(arguments)]) }, call: function () { i(["call", c.call(arguments)]) }, init: function () { var n = t.createElement("script"); n.async = !0, n.type = "text/javascript", n.src = "https://cdn.livechatinc.com/tracking.js", t.head.appendChild(n) } }; !n.__lc.asyncInit && e.init(), n.LiveChatWidget = n.LiveChatWidget || e }(window, document, [].slice))
+
+    function setCustomIdentityProvider() {
+    window.__lc.custom_identity_provider = function () {
+      const TOKEN_STORAGE_KEY = "lc_chat_widget_token";
+      let cachedToken = null;
+      let tokenPromise = null;
+
+      // Load token from localStorage on provider creation
+      (function loadFromStorage() {
+        try {
+          const stored = window.localStorage.getItem(TOKEN_STORAGE_KEY);
+          if (!stored) return;
+          const token = JSON.parse(stored);
+          if (token && typeof token === "object") {
+            cachedToken = token;
+          }
+        } catch (e) {
+          // Corrupted storage; ignore
+          cachedToken = null;
+        }
+      })();
+
+      function isExpired(token) {
+        if (!token || !token.creationDate || !token.expiresIn) return true;
+        const now = Date.now();
+
+        // Optional safety margin: refresh slightly before real expiry
+        const SAFETY_MARGIN_MS = 15 * 1000; // 15s
+        return now >= token.creationDate + token.expiresIn - SAFETY_MARGIN_MS;
+      }
+
+      function storeToken(token) {
+        cachedToken = token;
+        try {
+          window.localStorage.setItem(
+            TOKEN_STORAGE_KEY,
+            JSON.stringify(token)
+          );
+        } catch (e) {
+          // Storage may be disabled or full, ignore
+        }
+      }
+
+      function clearStoredToken() {
+        cachedToken = null;
+        try {
+          window.localStorage.removeItem(TOKEN_STORAGE_KEY);
+        } catch (e) {
+          // ignore
+        }
+      }
+
+      // Call your backend to get a Chat Widget token
+      function fetchTokenFromBackend() {
+        const params = new URLSearchParams({
+          license: config.license
+        });
+        return fetch(`https://localhost/api/livechat/chat-widget-token?${params.toString()}`, {
+          method: "GET",
+          credentials: "include", // send cookies/session if you rely on them
+          headers: {
+            "Accept": "application/json",
+            // "Authorization": "Bearer " + myJwtToken,
+          }
+        }).then(function (res) {
+          if (!res.ok) {
+            throw new Error(
+              "Failed to fetch LiveChat Chat Widget token: " + res.status
+            );
+          }
+          return res.json();
+        }).then(function (token) {
+          // Optional: validate basic shape quickly
+          if (!token || !token.accessToken || !token.entityId) {
+            throw new Error("Invalid Chat Widget token from backend");
+          }
+          storeToken(token);
+          return token;
+        });
+      }
+
+      function getFreshToken() {
+        // Deduplicate concurrent calls
+        if (tokenPromise) {
+          return tokenPromise;
+        }
+        tokenPromise = fetchTokenFromBackend().finally(function () {
+          tokenPromise = null;
+        });
+        return tokenPromise;
+      }
+
+      function getToken() {
+        // 1) If a fetch is already in flight, reuse it
+        if (tokenPromise) {
+          return tokenPromise;
+        }
+
+        // 2) If we have a non-expired cached token, return it
+        if (cachedToken && !isExpired(cachedToken)) {
+          return Promise.resolve(cachedToken);
+        }
+
+        // 3) Otherwise fetch a fresh token
+        return getFreshToken();
+      }
+
+      function hasToken() {
+        // Only report true if we have a cached token AND it's not expired
+        const hasValidToken = !!(cachedToken && !isExpired(cachedToken));
+        return Promise.resolve(hasValidToken);
+      }
+
+      function invalidate() {
+        clearStoredToken();
+        return Promise.resolve();
+      }
+
+      // Required API shape for Custom Identity Provider
+      // https://platform.text.com/docs/extending-chat-widget/custom-identity-provider :contentReference[oaicite:2]{index=2}
+      return {
+        getToken: getToken,
+        getFreshToken: getFreshToken,
+        hasToken: hasToken,
+        invalidate: invalidate,
+      };
+    };
+  }
+  
+  </script>
+  <noscript><a href="https://www.livechat.com/chat-with/13374150/" rel="nofollow">Chat with us</a>, powered by <a
+      href="https://www.livechat.com/?welcome" rel="noopener nofollow" target="_blank">LiveChat</a></noscript>
+  <!-- End of LiveChat code -->
+
+</head>
+
+<body>
+</body>
+
+</html>
