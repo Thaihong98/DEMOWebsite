@@ -71,7 +71,7 @@
       // Call your backend to get a Chat Widget token
       function fetchTokenFromBackend() {
         const params = new URLSearchParams({
-          license: config.license
+          license: "13374150"
         });
         return fetch(`https://localhost/api/livechat/chat-widget-token?${params.toString()}`, {
           method: "GET",
