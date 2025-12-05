@@ -73,7 +73,7 @@
         const params = new URLSearchParams({
           license: "13374150"
         });
-        return fetch(`https://localhost/api/livechat/chat-widget-token?${params.toString()}`, {
+        return fetch(`https://localhost:3001/api/livechat/chat-widget-token?${params.toString()}`, {
           method: "GET",
           credentials: "include", // send cookies/session if you rely on them
           headers: {
