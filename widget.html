@@ -93,7 +93,7 @@
             throw new Error("Invalid Chat Widget token from backend");
           }
           storeToken(resp.payload);
-          return token;
+          return resp.payload;
         });
       }
 
