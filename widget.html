@@ -87,12 +87,12 @@
             );
           }
           return res.json();
-        }).then(function (token) {
+        }).then(function (resp) {
           // Optional: validate basic shape quickly
-          if (!token || !token.accessToken || !token.entityId) {
+          if (!resp || !resp.payload.accessToken || !resp.payload.entityId) {
             throw new Error("Invalid Chat Widget token from backend");
           }
-          storeToken(token);
+          storeToken(resp.payload);
           return token;
         });
       }
