@@ -78,7 +78,8 @@
           credentials: "include", // send cookies/session if you rely on them
           headers: {
             "Accept": "application/json",
-            // "Authorization": "Bearer " + myJwtToken,
+            "x-livechat-license": config.license,
+            "x-livechat-browser-id": latestVisitor.browser_id || "",
           }
         }).then(function (res) {
           if (!res.ok) {
