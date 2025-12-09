@@ -75,6 +75,7 @@
           credentials: "include", // send cookies/session if you rely on them
           headers: {
             "Accept": "application/json",
+            "JWT-Authorization": JSON.parse(document.cookie.split('; ').find(row => row.startsWith('acctInfo='))?.split('=')[1] || '{}').token || "",
             "x-livechat-license": "13374150",
             "x-livechat-browser-id": "G006_431_en-US_51662s54",
           }
