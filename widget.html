@@ -69,9 +69,8 @@
 
       // Call your backend to get a Chat Widget token
       function fetchTokenFromBackend() {
-        return fetch(`http://localhost:3001/api/livechat/chat-widget-token`, {
+        return fetch(`https://sg-ic-gw.izp.me/dev/api/livechat/chat-widget-token`, {
           method: "GET",
-          credentials: "include", // send cookies/session if you rely on them
           headers: {
             "Accept": "application/json",
             "JWT-Authorization": JSON.parse(document.cookie.split('; ').find(row => row.startsWith('acctInfo='))?.split('=')[1] || '{}').token || "",
